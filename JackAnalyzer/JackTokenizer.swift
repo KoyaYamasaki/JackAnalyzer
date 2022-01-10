@@ -43,38 +43,35 @@ class JackTokenizer {
 
         // Remove line break lines.
         commandByLine = commandByLine.filter({ $0 != "\r" && !$0.isEmpty })
-
-        commandByLine = commandByLine.map {
-            if $0.contains("\"") {
-                let firstIndex = $0.firstIndex(of: "\"")!
-                let lastIndex = $0.lastIndex(of: "\"")!
-                let lIndex = $0.index(lastIndex, offsetBy: 1)
-                let strVal = $0[firstIndex...lastIndex]
-                return String($0[..<firstIndex]) + String(strVal).replacingOccurrences(of: " ", with: "") + String($0[lIndex...])
-            } else {
-                return $0
-            }
-        }
-
-        for aOrder in commandByLine {
-            let tokens = aOrder.components(separatedBy: " ")
-
-            _ = tokens.map { token in
-                var shapedToken = ""
-                token.forEach { char in
-                    if preservedDelimiters.contains(char) {
-                        if !shapedToken.isEmpty {
-                            tokenList.append(shapedToken)
-                            shapedToken = ""
-                        }
-                        tokenList.append(String(char))
+        
+        for line in commandByLine {
+            var token = ""
+            line.forEach { char in
+                if char == " " {
+                    if token.contains("\"") {
+                        token.append(char)
                     } else {
-                        shapedToken.append(char)
+                        if !token.isEmpty {
+                            tokenList.append(token)
+                            token = ""
+                        }
                     }
+                    return
                 }
-                if !shapedToken.isEmpty {
-                    tokenList.append(shapedToken)
+                
+                if preservedDelimiters.contains(char) {
+                    if !token.isEmpty {
+                        tokenList.append(token)
+                        token = ""
+                    }
+                    tokenList.append(String(char))
+                } else {
+                    token.append(char)
                 }
+                
+            }
+            if !token.isEmpty {
+                tokenList.append(token)
             }
         }
 
