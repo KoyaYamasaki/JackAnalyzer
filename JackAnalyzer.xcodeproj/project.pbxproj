@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1A12D6022785BE800082018F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A12D6012785BE800082018F /* main.swift */; };
 		1A12D6092785C0E70082018F /* JackTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A12D6082785C0E70082018F /* JackTokenizer.swift */; };
+		1A3B02C52786EC3100444954 /* TokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C42786EC3100444954 /* TokenType.swift */; };
+		1A3B02C72786F00600444954 /* Extenstions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C62786F00600444954 /* Extenstions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +29,8 @@
 		1A12D5FE2785BE800082018F /* JackAnalyzer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JackAnalyzer; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A12D6012785BE800082018F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		1A12D6082785C0E70082018F /* JackTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JackTokenizer.swift; sourceTree = "<group>"; };
+		1A3B02C42786EC3100444954 /* TokenType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenType.swift; sourceTree = "<group>"; };
+		1A3B02C62786F00600444954 /* Extenstions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extenstions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,8 @@
 			children = (
 				1A12D6012785BE800082018F /* main.swift */,
 				1A12D6082785C0E70082018F /* JackTokenizer.swift */,
+				1A3B02C62786F00600444954 /* Extenstions.swift */,
+				1A3B02C42786EC3100444954 /* TokenType.swift */,
 			);
 			path = JackAnalyzer;
 			sourceTree = "<group>";
@@ -144,6 +150,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3B02C72786F00600444954 /* Extenstions.swift in Sources */,
+				1A3B02C52786EC3100444954 /* TokenType.swift in Sources */,
 				1A12D6092785C0E70082018F /* JackTokenizer.swift in Sources */,
 				1A12D6022785BE800082018F /* main.swift in Sources */,
 			);
