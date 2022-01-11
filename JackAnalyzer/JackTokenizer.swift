@@ -12,7 +12,7 @@ class JackTokenizer {
 
     var currentToken = ""
 
-    private let preservedDelimiters: Set<Character> =
+    private let symbolSets: Set<Character> =
         ["{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
     "&", "|", "<", ">", "=", "~"]
     private var position: Int = -1
@@ -26,9 +26,12 @@ class JackTokenizer {
 
         var commandByLine = fileContents.components(separatedBy: "\n")
 
+        // Remove spaces.
+        commandByLine = commandByLine.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
+
         // Remove comment lines.
         commandByLine = commandByLine.filter {
-            !$0.hasPrefix("//") && !$0.hasPrefix("/*")
+            !$0.hasPrefix("//") && !$0.hasPrefix("/**")
         }
 
         // Remove Same line comment
@@ -37,9 +40,6 @@ class JackTokenizer {
                 return String($0[..<commentIndex.lowerBound])
             } else { return $0 }
         })
-
-        // Remove spaces.
-        commandByLine = commandByLine.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
 
         // Remove line break lines.
         commandByLine = commandByLine.filter({ $0 != "\r" && !$0.isEmpty })
@@ -59,7 +59,7 @@ class JackTokenizer {
                     return
                 }
                 
-                if preservedDelimiters.contains(char) {
+                if symbolSets.contains(char) {
                     if !token.isEmpty {
                         tokenList.append(token)
                         token = ""
@@ -116,6 +116,18 @@ class JackTokenizer {
     }
 
     func symbol() -> String {
+        if currentToken == "<" {
+            return "&lt;"
+        }
+
+        if currentToken == "&" {
+            return "&amp;"
+        }
+
+        if currentToken == ">" {
+            return "&gt;"
+        }
+
         return currentToken
     }
 
@@ -132,9 +144,11 @@ class JackTokenizer {
     }
 
     func stringVal() -> String {
-        if currentToken.contains("\"") {
+        guard currentToken.contains("\"") else {
+            fatalError("currentToken is not string value.")
         }
 
-        return ""
+        let stringVal = currentToken.replacingOccurrences(of: "\"", with: "")
+        return stringVal
     }
 }
