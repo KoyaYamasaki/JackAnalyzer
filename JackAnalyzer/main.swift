@@ -12,6 +12,8 @@ class JackAnalyzer {
     
     static var tokenizer: JackTokenizer!
     static var fileHandle: FileHandle!
+    static var compileList: [String] = []
+    static var insertOffset = 0
 
     static func main() {
         let arguments = ProcessInfo().arguments
@@ -76,7 +78,7 @@ class JackAnalyzer {
         var line = 1
         var indentIndex = 0
 
-        writeOutToXml("<tokens>", indent: indentIndex)
+        compileTokens(indentIndex: indentIndex)
         indentIndex += 2
 
         while tokenizer.hasMoreCommands() {
@@ -86,15 +88,15 @@ class JackAnalyzer {
 
             switch tokenizer.tokenType {
             case .KEYWORD:
-                writeOutToXml("<keyword> \(tokenizer.keyword()) </keyword>", indent: indentIndex)
+                compileList.insert("<keyword> \(tokenizer.keyword()) </keyword>".indent(indentIndex), at: compileList.count-insertOffset)
             case .IDENTIFIER:
-                writeOutToXml("<identifier> \(tokenizer.identifier()) </identifier>", indent: indentIndex)
+                compileList.insert("<identifier> \(tokenizer.identifier()) </identifier>".indent(indentIndex), at: compileList.count-insertOffset)
             case .SYMBOL:
-                writeOutToXml("<symbol> \(tokenizer.symbol()) </symbol>", indent: indentIndex)
+                compileList.insert("<symbol> \(tokenizer.symbol()) </symbol>".indent(indentIndex), at: compileList.count-insertOffset)
             case .STRING_CONST:
-                writeOutToXml("<stringConstant> \(tokenizer.stringVal()) </stringConstant>", indent: indentIndex)
+                compileList.insert("<stringConstant> \(tokenizer.stringVal()) </stringConstant>".indent(indentIndex), at: compileList.count-insertOffset)
             case .INT_CONST:
-                writeOutToXml("<integerConstant> \(tokenizer.intVal()) </integerConstant>", indent: indentIndex)
+                compileList.insert("<integerConstant> \(tokenizer.intVal()) </integerConstant>".indent(indentIndex), at: compileList.count-insertOffset)
             }
 
             print("=====================")
@@ -102,7 +104,7 @@ class JackAnalyzer {
         }
 
         indentIndex -= 2
-        writeOutToXml("</tokens>", indent: indentIndex)
+        writeOutToXml()
     }
 
     private static func createOutputFile(outputFileDir: URL) {
@@ -118,18 +120,19 @@ class JackAnalyzer {
         fileHandle = FileHandle(forWritingAtPath: outputFileDir.path)!
     }
 
-    private static func writeOutToXml(_ token: String, indent: Int) {
-        let tokenWithIndent = token.indent(indent)
-        self.fileHandle.write(tokenWithIndent.data(using: .utf8)!)
-        self.fileHandle.write("\n".data(using: .utf8)!)
+    private static func compileTokens(indentIndex: Int) {
+        compileList.append("<tokens>")
+        compileList.append("</tokens>")
+        insertOffset += 1
     }
 
-}
-
-extension URL {
-    var isDirectory: Bool {
-       (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+    private static func writeOutToXml() {
+        for token in compileList {
+            self.fileHandle.write(token.data(using: .utf8)!)
+            self.fileHandle.write("\n".data(using: .utf8)!)
+        }
     }
+
 }
 
 JackAnalyzer.main()
