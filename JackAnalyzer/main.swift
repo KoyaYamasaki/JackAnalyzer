@@ -11,9 +11,14 @@ import Foundation
 class JackAnalyzer {
     
     static var tokenizer: JackTokenizer!
-    static var fileHandle: FileHandle!
-    static var compileList: [String] = []
-    static var insertOffset = 0
+    static var compilationEngine: CompilationEngine!
+    static var currentKeyword: Keyword = .CLASS
+    static var additionalOffset: [String: Int] = [";": 0, "}": 0]
+    static var previousSymbol: Symbol = .NONE
+
+    static var isCurrentStatement: Bool {
+        return currentKeyword == .WHILE || currentKeyword == .IF || currentKeyword == .DO || currentKeyword == .LET
+    }
 
     static func main() {
         let arguments = ProcessInfo().arguments
@@ -42,7 +47,7 @@ class JackAnalyzer {
         let outputFile = fileName.replacingOccurrences(of: "jack", with: "xml")
         let outputFileDir = url.deletingLastPathComponent().appendingPathComponent(outputFile)
         tokenizer = JackTokenizer(fileURL: url)
-        createOutputFile(outputFileDir: outputFileDir)
+        compilationEngine = CompilationEngine(outputFileDir: outputFileDir)
         startParse()
     }
 
@@ -76,10 +81,6 @@ class JackAnalyzer {
 
     private static func startParse() {
         var line = 1
-        var indentIndex = 0
-
-        compileTokens(indentIndex: indentIndex)
-        indentIndex += 2
 
         while tokenizer.hasMoreCommands() {
             tokenizer.advance()
@@ -88,51 +89,248 @@ class JackAnalyzer {
 
             switch tokenizer.tokenType {
             case .KEYWORD:
-                compileList.insert("<keyword> \(tokenizer.keyword()) </keyword>".indent(indentIndex), at: compileList.count-insertOffset)
+                if tokenizer.keyword() == .CLASS {
+                    currentKeyword = tokenizer.keyword()
+                    compilationEngine.compileClass()
+                }
+
+                if tokenizer.keyword() == .FUNCTION {
+                    currentKeyword = tokenizer.keyword()
+                    compilationEngine.compileSubroutine()
+                }
+
+                if tokenizer.keyword() == .VAR {
+                    currentKeyword = tokenizer.keyword()
+                    compilationEngine.compileVarDec()
+                }
+
+                if tokenizer.keyword() == .LET ||
+                    tokenizer.keyword() == .DO ||
+                    tokenizer.keyword() == .IF ||
+                    tokenizer.keyword() == .WHILE {
+                    if !isCurrentStatement {
+                        compilationEngine.compileStatements()
+                    }
+
+                    currentKeyword = tokenizer.keyword()
+
+                    if tokenizer.keyword() == .LET {
+                        compilationEngine.compileLet()
+                    }
+
+                    if tokenizer.keyword() == .DO {
+                        compilationEngine.compileDo()
+                    }
+
+                    if tokenizer.keyword() == .IF {
+                        compilationEngine.compileIf()
+                    }
+
+                    if tokenizer.keyword() == .WHILE {
+                        compilationEngine.compileWhile()
+                    }
+                }
+
+                if tokenizer.keyword() == .RETURN {
+                    compilationEngine.compileReturn()
+                    currentKeyword = .CLASS
+                }
+                compilationEngine.addToCompileTokenList(token: ("<keyword> \(tokenizer.keyword().rawValue) </keyword>"))
             case .IDENTIFIER:
-                compileList.insert("<identifier> \(tokenizer.identifier()) </identifier>".indent(indentIndex), at: compileList.count-insertOffset)
+                if currentKeyword == .WHILE || currentKeyword == .IF {
+                    compilationEngine.compileTerm()
+                    compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                    compilationEngine.endCurrentTag()
+                    break
+                }
+
+                if previousSymbol == .EQUAL {
+                    compilationEngine.compileExpression()
+                    if tokenizer.getNextCommand() == "." {
+                        compilationEngine.compileTerm()
+                        compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                        additionalOffset[";"]! += 2
+                    } else if isFourArithOperations(tokenizer.getNextCommand()) {
+                        compilationEngine.compileTerm()
+                        compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                        additionalOffset[";"]! += 1
+                        compilationEngine.endCurrentTag()
+                    } else {
+                        compilationEngine.compileTerm()
+                        compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                        compilationEngine.endCurrentTagBy(2)
+                    }
+                    
+                    previousSymbol = .NONE
+                    break
+                }
+
+                if tokenizer.previousToken != "let" && tokenizer.previousToken != "var" {
+                    if tokenizer.getNextCommand() == "[" {
+                        compilationEngine.compileTerm()
+                        compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                        additionalOffset[";"]! += 1
+                        break
+                    }
+                }
+
+                if isFourArithOperations(previousSymbol.rawValue) {
+                    compilationEngine.compileTerm()
+                    compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                    compilationEngine.endCurrentTag()
+                    break
+                }
+
+                if previousSymbol == .LPARENTHESIS || previousSymbol == .LBLACKET {
+                    compilationEngine.compileExpression()
+                    compilationEngine.compileTerm()
+                    compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
+                    if isFourArithOperations(tokenizer.getNextCommand()) {
+                        compilationEngine.endCurrentTag()
+                        additionalOffset[";"]! += 1
+                        break
+                    } else {
+                        compilationEngine.endCurrentTagBy(2)
+                        break
+                    }
+                }
+
+                compilationEngine.addToCompileTokenList(token: ("<identifier> \(tokenizer.identifier()) </identifier>"))
             case .SYMBOL:
-                compileList.insert("<symbol> \(tokenizer.symbol()) </symbol>".indent(indentIndex), at: compileList.count-insertOffset)
+                if tokenizer.symbol() == .LBLACE { // {
+                    if currentKeyword == .FUNCTION {
+                        compilationEngine.compileSubroutineBody()
+                        compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                        previousSymbol = tokenizer.symbol()
+                        break
+                    }
+
+                    if currentKeyword == .WHILE || currentKeyword == .IF {
+                        compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                        compilationEngine.compileStatements()
+                        additionalOffset["}"]! += 1
+                        previousSymbol = tokenizer.symbol()
+                        break
+                    }
+                }
+
+                if tokenizer.symbol() == .LPARENTHESIS { // (
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    if currentKeyword == .FUNCTION {
+                        compilationEngine.compileParameterList()
+                    }
+
+                    if currentKeyword == .DO || currentKeyword == .LET {
+                        compilationEngine.compileExpressionList()
+                    }
+
+                    if currentKeyword == .WHILE || currentKeyword == .IF {
+                        compilationEngine.compileExpression()
+                    }
+
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .RPARENTHESIS { // )
+
+                    if currentKeyword == .LET || currentKeyword == .DO || currentKeyword == .WHILE {
+                        compilationEngine.endCurrentTag()
+                    }
+
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .LBLACKET { // [
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .RBLACKET { // ]
+//                    compilationEngine.endCurrentTag()
+
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .DOT {
+
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .RBLACE { // }
+                    compilationEngine.endCurrentTagBy(additionalOffset["}"]!)
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    compilationEngine.endCurrentTag()
+                    additionalOffset["}"] = 0
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .EQUAL {
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    previousSymbol = tokenizer.symbol()
+                    break
+                }
+
+                if tokenizer.symbol() == .SEMICOLON {
+                    compilationEngine.endCurrentTagBy(additionalOffset[";"]!)
+                    compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                    compilationEngine.endCurrentTag()
+                    additionalOffset[";"] = 0
+                    previousSymbol = .SEMICOLON
+                    break
+                }
+
+                compilationEngine.addToCompileTokenList(token: ("<symbol> \(tokenizer.symbol().rawValue) </symbol>"))
+                previousSymbol = tokenizer.symbol()
             case .STRING_CONST:
-                compileList.insert("<stringConstant> \(tokenizer.stringVal()) </stringConstant>".indent(indentIndex), at: compileList.count-insertOffset)
+                if previousSymbol == .LPARENTHESIS || previousSymbol == .EQUAL {
+                    compilationEngine.compileExpression()
+                    compilationEngine.compileTerm()
+                    compilationEngine.addToCompileTokenList(token: ("<stringConstant> \(tokenizer.stringVal()) </stringConstant>"))
+                    compilationEngine.endCurrentTagBy(2)
+//                    compilationEngine.endCurrentTag()
+//                    additionalOffset += 1
+                    break
+                }
+
+                compilationEngine.compileTerm()
+                compilationEngine.addToCompileTokenList(token: ("<stringConstant> \(tokenizer.stringVal()) </stringConstant>"))
+                compilationEngine.endCurrentTag()
             case .INT_CONST:
-                compileList.insert("<integerConstant> \(tokenizer.intVal()) </integerConstant>".indent(indentIndex), at: compileList.count-insertOffset)
+                if previousSymbol == .LPARENTHESIS || previousSymbol == .EQUAL {
+                    compilationEngine.compileExpression()
+                    compilationEngine.compileTerm()
+                    compilationEngine.addToCompileTokenList(token: ("<integerConstant> \(tokenizer.intVal()) </integerConstant>"))
+                    compilationEngine.endCurrentTagBy(2)
+//                    additionalOffset += 1
+                    break
+                }
+
+                compilationEngine.compileTerm()
+                compilationEngine.addToCompileTokenList(token: ("<integerConstant> \(tokenizer.intVal()) </integerConstant>"))
+                compilationEngine.endCurrentTag()
             }
 
             print("=====================")
             line += 1
         }
 
-        indentIndex -= 2
-        writeOutToXml()
+        compilationEngine.outPutToXml()
     }
 
-    private static func createOutputFile(outputFileDir: URL) {
-
-        FileManager
-            .default
-            .createFile(
-                atPath: outputFileDir.path,
-                contents: "".data(using: .utf8),
-                attributes: nil)
-
-        print("outputFileDir: \(outputFileDir)")
-        fileHandle = FileHandle(forWritingAtPath: outputFileDir.path)!
+    private static func isFourArithOperations(_ symbol: String) -> Bool {
+        return symbol == "+" || symbol == "-" || symbol == "/" || symbol == "*"
     }
-
-    private static func compileTokens(indentIndex: Int) {
-        compileList.append("<tokens>")
-        compileList.append("</tokens>")
-        insertOffset += 1
-    }
-
-    private static func writeOutToXml() {
-        for token in compileList {
-            self.fileHandle.write(token.data(using: .utf8)!)
-            self.fileHandle.write("\n".data(using: .utf8)!)
-        }
-    }
-
 }
 
 JackAnalyzer.main()

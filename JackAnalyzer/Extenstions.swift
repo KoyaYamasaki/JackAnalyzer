@@ -12,7 +12,6 @@ extension String {
     func indent(_ index: Int) -> String {
         var strWithIndent = self
         for _ in 0..<index {
-            print("Put empty space")
             strWithIndent.insert(" ", at: self.index(self.startIndex, offsetBy: 0))
         }
 

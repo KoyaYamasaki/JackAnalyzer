@@ -11,6 +11,7 @@ import Foundation
 class JackTokenizer {
 
     var currentToken = ""
+    var previousToken = ""
 
     private let symbolSets: Set<Character> =
         ["{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
@@ -87,17 +88,15 @@ class JackTokenizer {
             return .STRING_CONST
         }
 
-        switch currentToken {
-        case "class", "constructor", "function", "method", "field", "static",
-             "var", "int", "char", "boolean", "void", "true", "false", "null",
-             "this", "let", "do", "if", "else", "while", "return":
+        if Keyword(rawValue: currentToken) != nil {
             return .KEYWORD
-        case "{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
-             "&", "|", "<", ">", "=", "~":
-            return .SYMBOL
-        default:
-            return .IDENTIFIER
         }
+
+        if Symbol(rawValue: currentToken) != nil {
+            return .SYMBOL
+        }
+
+        return .IDENTIFIER
     }
 
     func hasMoreCommands() -> Bool {
@@ -105,30 +104,32 @@ class JackTokenizer {
     }
 
     func advance() {
+        previousToken = currentToken
+
         if hasMoreCommands() {
             position += 1
             currentToken = tokenList[position]
         }
     }
 
-    func keyword() -> String {
-        return currentToken
+    func getNextCommand() -> String {
+        return tokenList[position+1]
     }
 
-    func symbol() -> String {
-        if currentToken == "<" {
-            return "&lt;"
+    func keyword() -> Keyword {
+        guard let keyword = Keyword(rawValue: currentToken) else {
+            fatalError("currentToken is not keyword")
         }
 
-        if currentToken == "&" {
-            return "&amp;"
+        return keyword
+    }
+
+    func symbol() -> Symbol {
+        guard let symbol = Symbol(rawValue: currentToken) else {
+            fatalError("currentToken is not symbol")
         }
 
-        if currentToken == ">" {
-            return "&gt;"
-        }
-
-        return currentToken
+        return symbol
     }
 
     func identifier() -> String {
