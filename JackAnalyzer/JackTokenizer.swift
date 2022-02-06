@@ -19,13 +19,16 @@ class JackTokenizer {
     private var position: Int = -1
     private var tokenList: [String] = []
 
-    init(fileURL: URL) {
-
+    convenience init(fileURL: URL) {
         guard let fileContents = try? String(contentsOf: fileURL) else {
             fatalError("File could not be read.")
         }
+        self.init(contentStr: fileContents)
+    }
 
-        var commandByLine = fileContents.components(separatedBy: "\n")
+    init(contentStr: String) {
+        print("tokenizer init has been called")
+        var commandByLine = contentStr.components(separatedBy: "\n")
 
         // Remove spaces.
         commandByLine = commandByLine.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })

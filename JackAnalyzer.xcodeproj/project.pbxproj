@@ -10,11 +10,27 @@
 		1A12D6022785BE800082018F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A12D6012785BE800082018F /* main.swift */; };
 		1A12D6092785C0E70082018F /* JackTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A12D6082785C0E70082018F /* JackTokenizer.swift */; };
 		1A312BD6278C150100085EED /* CompilationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A312BD5278C150100085EED /* CompilationEngine.swift */; };
-		1A33B861278F2FC5002F65B6 /* Keyword.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A33B860278F2FC5002F65B6 /* Keyword.swift */; };
-		1A33B8632795693E002F65B6 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A33B8622795693E002F65B6 /* Symbol.swift */; };
-		1A3B02C52786EC3100444954 /* TokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C42786EC3100444954 /* TokenType.swift */; };
 		1A3B02C72786F00600444954 /* Extenstions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C62786F00600444954 /* Extenstions.swift */; };
+		461A385027AED1A00076967D /* Ast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A384F27AED1A00076967D /* Ast.swift */; };
+		461A385227AED1E80076967D /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A385127AED1E80076967D /* Token.swift */; };
+		461A386C27AED2790076967D /* TestJackTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A386B27AED2790076967D /* TestJackTokenizer.swift */; };
+		461A388327AED2C30076967D /* TestBridgingTargetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A388227AED2C30076967D /* TestBridgingTargetApp.swift */; };
+		461A388427AED2E60076967D /* JackTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A12D6082785C0E70082018F /* JackTokenizer.swift */; };
+		461A388527AED2EB0076967D /* CompilationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A312BD5278C150100085EED /* CompilationEngine.swift */; };
+		461A388627AED2ED0076967D /* Ast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A384F27AED1A00076967D /* Ast.swift */; };
+		461A388727AED2F00076967D /* Extenstions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C62786F00600444954 /* Extenstions.swift */; };
+		461A388827AED2F20076967D /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A385127AED1E80076967D /* Token.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		461A386827AED2790076967D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A12D5F62785BE800082018F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 461A385627AED2780076967D;
+			remoteInfo = TestBridgingTarget;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		1A12D5FC2785BE800082018F /* CopyFiles */ = {
@@ -33,14 +49,31 @@
 		1A12D6012785BE800082018F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		1A12D6082785C0E70082018F /* JackTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JackTokenizer.swift; sourceTree = "<group>"; };
 		1A312BD5278C150100085EED /* CompilationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilationEngine.swift; sourceTree = "<group>"; };
-		1A33B860278F2FC5002F65B6 /* Keyword.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyword.swift; sourceTree = "<group>"; };
-		1A33B8622795693E002F65B6 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
-		1A3B02C42786EC3100444954 /* TokenType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenType.swift; sourceTree = "<group>"; };
 		1A3B02C62786F00600444954 /* Extenstions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extenstions.swift; sourceTree = "<group>"; };
+		461A384F27AED1A00076967D /* Ast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ast.swift; sourceTree = "<group>"; };
+		461A385127AED1E80076967D /* Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		461A385727AED2780076967D /* TestBridgingTarget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestBridgingTarget.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		461A386727AED2790076967D /* TestJackAnalyzer.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestJackAnalyzer.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		461A386B27AED2790076967D /* TestJackTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestJackTokenizer.swift; sourceTree = "<group>"; };
+		461A388227AED2C30076967D /* TestBridgingTargetApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBridgingTargetApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1A12D5FB2785BE800082018F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		461A385427AED2780076967D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		461A386427AED2790076967D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -54,6 +87,8 @@
 			isa = PBXGroup;
 			children = (
 				1A12D6002785BE800082018F /* JackAnalyzer */,
+				461A385827AED2780076967D /* TestBridgingTarget */,
+				461A386A27AED2790076967D /* TestJackAnalyzer */,
 				1A12D5FF2785BE800082018F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -62,6 +97,8 @@
 			isa = PBXGroup;
 			children = (
 				1A12D5FE2785BE800082018F /* JackAnalyzer */,
+				461A385727AED2780076967D /* TestBridgingTarget.app */,
+				461A386727AED2790076967D /* TestJackAnalyzer.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,14 +107,29 @@
 			isa = PBXGroup;
 			children = (
 				1A12D6012785BE800082018F /* main.swift */,
-				1A33B860278F2FC5002F65B6 /* Keyword.swift */,
-				1A33B8622795693E002F65B6 /* Symbol.swift */,
+				461A384F27AED1A00076967D /* Ast.swift */,
 				1A312BD5278C150100085EED /* CompilationEngine.swift */,
 				1A12D6082785C0E70082018F /* JackTokenizer.swift */,
 				1A3B02C62786F00600444954 /* Extenstions.swift */,
-				1A3B02C42786EC3100444954 /* TokenType.swift */,
+				461A385127AED1E80076967D /* Token.swift */,
 			);
 			path = JackAnalyzer;
+			sourceTree = "<group>";
+		};
+		461A385827AED2780076967D /* TestBridgingTarget */ = {
+			isa = PBXGroup;
+			children = (
+				461A388227AED2C30076967D /* TestBridgingTargetApp.swift */,
+			);
+			path = TestBridgingTarget;
+			sourceTree = "<group>";
+		};
+		461A386A27AED2790076967D /* TestJackAnalyzer */ = {
+			isa = PBXGroup;
+			children = (
+				461A386B27AED2790076967D /* TestJackTokenizer.swift */,
+			);
+			path = TestJackAnalyzer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -101,18 +153,60 @@
 			productReference = 1A12D5FE2785BE800082018F /* JackAnalyzer */;
 			productType = "com.apple.product-type.tool";
 		};
+		461A385627AED2780076967D /* TestBridgingTarget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 461A387927AED2790076967D /* Build configuration list for PBXNativeTarget "TestBridgingTarget" */;
+			buildPhases = (
+				461A385327AED2780076967D /* Sources */,
+				461A385427AED2780076967D /* Frameworks */,
+				461A385527AED2780076967D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TestBridgingTarget;
+			productName = TestBridgingTarget;
+			productReference = 461A385727AED2780076967D /* TestBridgingTarget.app */;
+			productType = "com.apple.product-type.application";
+		};
+		461A386627AED2790076967D /* TestJackAnalyzer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 461A387C27AED2790076967D /* Build configuration list for PBXNativeTarget "TestJackAnalyzer" */;
+			buildPhases = (
+				461A386327AED2790076967D /* Sources */,
+				461A386427AED2790076967D /* Frameworks */,
+				461A386527AED2790076967D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				461A386927AED2790076967D /* PBXTargetDependency */,
+			);
+			name = TestJackAnalyzer;
+			productName = TestJackAnalyzer;
+			productReference = 461A386727AED2790076967D /* TestJackAnalyzer.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		1A12D5F62785BE800082018F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1100;
+				LastSwiftUpdateCheck = 1300;
 				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "山崎宏哉";
 				TargetAttributes = {
 					1A12D5FD2785BE800082018F = {
 						CreatedOnToolsVersion = 11.0;
+					};
+					461A385627AED2780076967D = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					461A386627AED2790076967D = {
+						CreatedOnToolsVersion = 13.0;
+						TestTargetID = 461A385627AED2780076967D;
 					};
 				};
 			};
@@ -130,9 +224,28 @@
 			projectRoot = "";
 			targets = (
 				1A12D5FD2785BE800082018F /* JackAnalyzer */,
+				461A385627AED2780076967D /* TestBridgingTarget */,
+				461A386627AED2790076967D /* TestJackAnalyzer */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		461A385527AED2780076967D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		461A386527AED2790076967D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		1A12D60A2785DCA60082018F /* ShellScript */ = {
@@ -160,16 +273,44 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A3B02C72786F00600444954 /* Extenstions.swift in Sources */,
-				1A3B02C52786EC3100444954 /* TokenType.swift in Sources */,
-				1A33B861278F2FC5002F65B6 /* Keyword.swift in Sources */,
+				461A385227AED1E80076967D /* Token.swift in Sources */,
+				461A385027AED1A00076967D /* Ast.swift in Sources */,
 				1A312BD6278C150100085EED /* CompilationEngine.swift in Sources */,
-				1A33B8632795693E002F65B6 /* Symbol.swift in Sources */,
 				1A12D6092785C0E70082018F /* JackTokenizer.swift in Sources */,
 				1A12D6022785BE800082018F /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		461A385327AED2780076967D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				461A388627AED2ED0076967D /* Ast.swift in Sources */,
+				461A388727AED2F00076967D /* Extenstions.swift in Sources */,
+				461A388427AED2E60076967D /* JackTokenizer.swift in Sources */,
+				461A388827AED2F20076967D /* Token.swift in Sources */,
+				461A388527AED2EB0076967D /* CompilationEngine.swift in Sources */,
+				461A388327AED2C30076967D /* TestBridgingTargetApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		461A386327AED2790076967D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				461A386C27AED2790076967D /* TestJackTokenizer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		461A386927AED2790076967D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 461A385627AED2780076967D /* TestBridgingTarget */;
+			targetProxy = 461A386827AED2790076967D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A12D6032785BE800082018F /* Debug */ = {
@@ -309,6 +450,120 @@
 			};
 			name = Release;
 		};
+		461A387A27AED2790076967D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = TestBridgingTarget/TestBridgingTarget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TestBridgingTarget/Preview Content\"";
+				DEVELOPMENT_TEAM = BV68V66Y4K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 山崎宏哉. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.koupen.TestBridgingTarget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		461A387B27AED2790076967D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = TestBridgingTarget/TestBridgingTarget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TestBridgingTarget/Preview Content\"";
+				DEVELOPMENT_TEAM = BV68V66Y4K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 山崎宏哉. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.koupen.TestBridgingTarget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		461A387D27AED2790076967D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV68V66Y4K;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.koupen.TestJackAnalyzer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestBridgingTarget.app/Contents/MacOS/TestBridgingTarget";
+			};
+			name = Debug;
+		};
+		461A387E27AED2790076967D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV68V66Y4K;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.koupen.TestJackAnalyzer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestBridgingTarget.app/Contents/MacOS/TestBridgingTarget";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -326,6 +581,24 @@
 			buildConfigurations = (
 				1A12D6062785BE800082018F /* Debug */,
 				1A12D6072785BE800082018F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		461A387927AED2790076967D /* Build configuration list for PBXNativeTarget "TestBridgingTarget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				461A387A27AED2790076967D /* Debug */,
+				461A387B27AED2790076967D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		461A387C27AED2790076967D /* Build configuration list for PBXNativeTarget "TestJackAnalyzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				461A387D27AED2790076967D /* Debug */,
+				461A387E27AED2790076967D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
