@@ -9,12 +9,19 @@
 import Foundation
 
 protocol TokenLiteral {
+    associatedtype T
+
     func literal() -> String
 }
 
-struct Token {
+struct Token<T> {
     let tokenType: TokenType
-    let tokenLiteral: String
+    let tokenLiteral: T
+
+    init(tokenType: TokenType, tokenLiteral: T) {
+        self.tokenType = tokenType
+        self.tokenLiteral = tokenLiteral
+    }
 }
 
 enum TokenType: String {
@@ -26,6 +33,8 @@ enum TokenType: String {
 }
 
 enum Keyword: String, TokenLiteral {
+    typealias T = Keyword
+
     case CLASS = "class"
     case CONSTRUCTOR = "constructor"
     case FUNCTION = "function"
@@ -54,6 +63,8 @@ enum Keyword: String, TokenLiteral {
 }
 
 enum Symbol: String, TokenLiteral {
+    typealias T = Symbol
+
     case LBLACE = "{"
     case RBLACE = "}"
     case LPARENTHESIS = "("
@@ -78,4 +89,10 @@ enum Symbol: String, TokenLiteral {
     func literal() -> String {
         return self.rawValue
     }
+
+    static var symbolSets: Set<Character> {
+        return ["{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
+                "&", "|", "<", ">", "=", "~"]
+    }
+        
 }

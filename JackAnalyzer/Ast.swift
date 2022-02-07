@@ -16,21 +16,21 @@ protocol Statement: Node {}
 protocol Expression: Node {}
 
 struct LetStatement: Statement {
-    let token: Token
+    let token: Token<Keyword>
     let name: Identifier
     let expression: Expression
 
     func printSelf() -> String {
-        return token.tokenLiteral + " " + name.value + " = " + expression.printSelf()
+        return token.tokenLiteral.literal() + " " + name.value + " = " + expression.printSelf()
     }
 }
 
 struct ReturnStatement {
-    let token: Token
+    let token: Token<Keyword>
     let expression: Expression
 }
 
 struct Identifier {
-    let token: Token
+    let token: Token<String>
     let value: String
 }

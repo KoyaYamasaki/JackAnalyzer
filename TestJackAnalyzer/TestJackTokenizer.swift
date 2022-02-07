@@ -23,6 +23,7 @@ class TestJackTokenizer: XCTestCase {
         var index = 0
         let correctArray = ["let", "a", "=", "10", ";"]
         let testToken = JackTokenizer(contentStr: "let a = 10;")
+        let t = Token(tokenType: .KEYWORD, tokenLiteral: .PIPE)
 
         while testToken.hasMoreCommands() {
             testToken.advance()

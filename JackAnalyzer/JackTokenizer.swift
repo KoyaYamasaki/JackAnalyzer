@@ -13,9 +13,6 @@ class JackTokenizer {
     var currentToken = ""
     var previousToken = ""
 
-    private let symbolSets: Set<Character> =
-        ["{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
-    "&", "|", "<", ">", "=", "~"]
     private var position: Int = -1
     private var tokenList: [String] = []
 
@@ -63,7 +60,7 @@ class JackTokenizer {
                     return
                 }
                 
-                if symbolSets.contains(char) {
+                if Symbol.symbolSets.contains(char) {
                     if !token.isEmpty {
                         tokenList.append(token)
                         token = ""
