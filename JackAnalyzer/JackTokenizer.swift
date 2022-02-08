@@ -52,26 +52,6 @@ class JackTokenizer {
         self.input = commandByLine.joined()
     }
 
-    var tokenType: TokenType {
-        if Int(currentToken) != nil {
-            return .INT_CONST
-        }
-
-        if currentToken.contains("\"") {
-            return .STRING_CONST
-        }
-
-        if Keyword(rawValue: currentToken) != nil {
-            return .KEYWORD
-        }
-
-        if Symbol(rawValue: currentToken) != nil {
-            return .SYMBOL
-        }
-
-        return .IDENTIFIER
-    }
-
     func hasMoreCommands() -> Bool {
         return position + 1 != self.input.count
     }
@@ -81,12 +61,17 @@ class JackTokenizer {
 
         self.skipWhiteSpace()
 
-        if Symbol.symbolSets.contains(currentChar) {
-            token = Token(tokenType: .SYMBOL, tokenLiteral: String(currentChar))
+        if TokenType.symbolSets.contains(currentChar) {
+            token = Token(tokenType: TokenType(rawValue: String(currentChar))!, tokenLiteral: String(currentChar))
         } else if currentChar == "\"" {
             return Token(tokenType: .STRING_CONST, tokenLiteral: self.readString())
         } else if currentChar.isLetter {
-            return Token(tokenType: .IDENTIFIER, tokenLiteral: self.readIdentifier())
+            let str = self.readIdentifier()
+            if TokenType.keywordSets.contains(str) {
+                return Token(tokenType: TokenType(rawValue: str)!, tokenLiteral: str)
+            } else {
+                return Token(tokenType: .IDENTIFIER, tokenLiteral: str)
+            }
         } else if currentChar.isNumber {
             return Token(tokenType: .INT_CONST, tokenLiteral: self.readNumber())
         } else {
@@ -99,43 +84,6 @@ class JackTokenizer {
 
     func getNextCommand() -> String {
         return tokenList[position+1]
-    }
-
-    func keyword() -> Keyword {
-        guard let keyword = Keyword(rawValue: currentToken) else {
-            fatalError("currentToken is not keyword")
-        }
-
-        return keyword
-    }
-
-    func symbol() -> Symbol {
-        guard let symbol = Symbol(rawValue: currentToken) else {
-            fatalError("currentToken is not symbol")
-        }
-
-        return symbol
-    }
-
-    func identifier() -> String {
-        return currentToken
-    }
-
-    func intVal() -> Int {
-        if let intToken = Int(currentToken) {
-            return intToken
-        } else {
-            fatalError("currentToken is not int value.")
-        }
-    }
-
-    func stringVal() -> String {
-        guard currentToken.contains("\"") else {
-            fatalError("currentToken is not string value.")
-        }
-
-        let stringVal = currentToken.replacingOccurrences(of: "\"", with: "")
-        return stringVal
     }
 
     private func readChar() {
@@ -164,7 +112,7 @@ class JackTokenizer {
 
     private func readString() -> String {
         var token: String = ""
-        while !Symbol.symbolSets.contains(self.currentChar) {
+        while !TokenType.symbolSets.contains(self.currentChar) {
             token.append(self.currentChar)
             self.readChar()
         }

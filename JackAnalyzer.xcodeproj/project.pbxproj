@@ -20,6 +20,7 @@
 		461A388627AED2ED0076967D /* Ast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A384F27AED1A00076967D /* Ast.swift */; };
 		461A388727AED2F00076967D /* Extenstions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B02C62786F00600444954 /* Extenstions.swift */; };
 		461A388827AED2F20076967D /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A385127AED1E80076967D /* Token.swift */; };
+		464AB12F27B252D100837D9C /* JackAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464AB12E27B252D100837D9C /* JackAnalyzer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		461A386727AED2790076967D /* TestJackAnalyzer.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestJackAnalyzer.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		461A386B27AED2790076967D /* TestJackTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestJackTokenizer.swift; sourceTree = "<group>"; };
 		461A388227AED2C30076967D /* TestBridgingTargetApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBridgingTargetApp.swift; sourceTree = "<group>"; };
+		464AB12E27B252D100837D9C /* JackAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JackAnalyzer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				461A384F27AED1A00076967D /* Ast.swift */,
 				1A312BD5278C150100085EED /* CompilationEngine.swift */,
 				1A12D6082785C0E70082018F /* JackTokenizer.swift */,
+				464AB12E27B252D100837D9C /* JackAnalyzer.swift */,
 				1A3B02C62786F00600444954 /* Extenstions.swift */,
 				461A385127AED1E80076967D /* Token.swift */,
 			);
@@ -277,6 +280,7 @@
 				461A385027AED1A00076967D /* Ast.swift in Sources */,
 				1A312BD6278C150100085EED /* CompilationEngine.swift in Sources */,
 				1A12D6092785C0E70082018F /* JackTokenizer.swift in Sources */,
+				464AB12F27B252D100837D9C /* JackAnalyzer.swift in Sources */,
 				1A12D6022785BE800082018F /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -33,25 +33,25 @@ class TestJackTokenizer: XCTestCase {
         """
 
         let correctArray = [
-            Token(tokenType: .IDENTIFIER, tokenLiteral: "class"),
+            Token(tokenType: .CLASS, tokenLiteral: "class"),
             Token(tokenType: .IDENTIFIER, tokenLiteral: "Main"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "{"),
-            Token(tokenType: .IDENTIFIER, tokenLiteral: "function"),
-            Token(tokenType: .IDENTIFIER, tokenLiteral: "void"),
+            Token(tokenType: .LBLACE, tokenLiteral: "{"),
+            Token(tokenType: .FUNCTION, tokenLiteral: "function"),
+            Token(tokenType: .VOID, tokenLiteral: "void"),
             Token(tokenType: .IDENTIFIER, tokenLiteral: "printHello"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "("),
-            Token(tokenType: .SYMBOL, tokenLiteral: ")"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "{"),
-            Token(tokenType: .IDENTIFIER, tokenLiteral: "do"),
+            Token(tokenType: .LPARENTHESIS, tokenLiteral: "("),
+            Token(tokenType: .RPARENTHESIS, tokenLiteral: ")"),
+            Token(tokenType: .LBLACE, tokenLiteral: "{"),
+            Token(tokenType: .DO, tokenLiteral: "do"),
             Token(tokenType: .IDENTIFIER, tokenLiteral: "Output"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "."),
+            Token(tokenType: .DOT, tokenLiteral: "."),
             Token(tokenType: .IDENTIFIER, tokenLiteral: "printString"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "("),
+            Token(tokenType: .LPARENTHESIS, tokenLiteral: "("),
             Token(tokenType: .STRING_CONST, tokenLiteral: "\"Hello World\""),
-            Token(tokenType: .SYMBOL, tokenLiteral: ")"),
-            Token(tokenType: .SYMBOL, tokenLiteral: ";"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "}"),
-            Token(tokenType: .SYMBOL, tokenLiteral: "}"),
+            Token(tokenType: .RPARENTHESIS, tokenLiteral: ")"),
+            Token(tokenType: .SEMICOLON, tokenLiteral: ";"),
+            Token(tokenType: .RBLACE, tokenLiteral: "}"),
+            Token(tokenType: .RBLACE, tokenLiteral: "}"),
         ]
 
         let testToken = JackTokenizer(contentStr: testStr)
@@ -59,6 +59,8 @@ class TestJackTokenizer: XCTestCase {
         var index = 0
         while testToken.hasMoreCommands() {
             let tok = testToken.advance()
+            print("tokenType: ", tok.tokenType, "\nliteral: ", tok.tokenLiteral)
+            print("==================")
             XCTAssertEqual(tok.tokenType, correctArray[index].tokenType)
             XCTAssertEqual(tok.tokenLiteral, correctArray[index].tokenLiteral)
             index += 1

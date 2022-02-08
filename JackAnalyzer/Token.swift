@@ -8,10 +8,6 @@
 
 import Foundation
 
-protocol TokenLiteral {
-    func literal() -> String
-}
-
 struct Token {
     let tokenType: TokenType
     let tokenLiteral: String
@@ -23,16 +19,7 @@ struct Token {
 }
 
 enum TokenType: String {
-    case KEYWORD = "KEYWORD"
-    case SYMBOL = "SYMBOL"
-    case IDENTIFIER = "IDENTIFIER"
-    case INT_CONST = "INT_CONST"
-    case STRING_CONST = "STRING_CONST"
-}
-
-enum Keyword: String, TokenLiteral {
-    typealias T = Keyword
-
+    // KEYWORD
     case CLASS = "class"
     case CONSTRUCTOR = "constructor"
     case FUNCTION = "function"
@@ -55,19 +42,7 @@ enum Keyword: String, TokenLiteral {
     case WHILE = "while"
     case RETURN = "return"
 
-    func literal() -> String {
-        return self.rawValue
-    }
-
-    static var keywordSets: Set<String> {
-        return ["class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean", "void", "true", "false",
-                "null", "this", "let", "do", "if", "else", "while", "return"]
-    }
-}
-
-enum Symbol: String, TokenLiteral {
-    typealias T = Symbol
-
+    // SYMBOL
     case LBLACE = "{"
     case RBLACE = "}"
     case LPARENTHESIS = "("
@@ -89,13 +64,17 @@ enum Symbol: String, TokenLiteral {
     case TILDE = "~"
     case NONE = ""
 
-    func literal() -> String {
-        return self.rawValue
+    case IDENTIFIER = "IDENTIFIER"
+    case INT_CONST = "INT_CONST"
+    case STRING_CONST = "STRING_CONST"
+
+    static var keywordSets: Set<String> {
+        return ["class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean", "void", "true", "false",
+                "null", "this", "let", "do", "if", "else", "while", "return"]
     }
 
     static var symbolSets: Set<Character> {
         return ["{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-", "*", "/",
                 "&", "|", "<", ">", "=", "~"]
     }
-        
 }
