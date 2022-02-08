@@ -13,7 +13,12 @@ class JackTokenizer {
     var currentToken = ""
     var previousToken = ""
 
+    var input: String = ""
+
     private var position: Int = -1
+    var readPosition: Int = 0
+    private var currentChar: Character = " "
+
     private var tokenList: [String] = []
 
     convenience init(fileURL: URL) {
@@ -24,7 +29,6 @@ class JackTokenizer {
     }
 
     init(contentStr: String) {
-        print("tokenizer init has been called")
         var commandByLine = contentStr.components(separatedBy: "\n")
 
         // Remove spaces.
@@ -44,39 +48,8 @@ class JackTokenizer {
 
         // Remove line break lines.
         commandByLine = commandByLine.filter({ $0 != "\r" && !$0.isEmpty })
-        
-        for line in commandByLine {
-            var token = ""
-            line.forEach { char in
-                if char == " " {
-                    if token.contains("\"") {
-                        token.append(char)
-                    } else {
-                        if !token.isEmpty {
-                            tokenList.append(token)
-                            token = ""
-                        }
-                    }
-                    return
-                }
-                
-                if Symbol.symbolSets.contains(char) {
-                    if !token.isEmpty {
-                        tokenList.append(token)
-                        token = ""
-                    }
-                    tokenList.append(String(char))
-                } else {
-                    token.append(char)
-                }
-                
-            }
-            if !token.isEmpty {
-                tokenList.append(token)
-            }
-        }
 
-        print(tokenList)
+        self.input = commandByLine.joined()
     }
 
     var tokenType: TokenType {
@@ -100,16 +73,28 @@ class JackTokenizer {
     }
 
     func hasMoreCommands() -> Bool {
-        return position + 1 != tokenList.count
+        return position + 1 != self.input.count
     }
 
-    func advance() {
-        previousToken = currentToken
+    func advance() -> Token {
+        var token: Token
 
-        if hasMoreCommands() {
-            position += 1
-            currentToken = tokenList[position]
+        self.skipWhiteSpace()
+
+        if Symbol.symbolSets.contains(currentChar) {
+            token = Token(tokenType: .SYMBOL, tokenLiteral: String(currentChar))
+        } else if currentChar == "\"" {
+            return Token(tokenType: .STRING_CONST, tokenLiteral: self.readString())
+        } else if currentChar.isLetter {
+            return Token(tokenType: .IDENTIFIER, tokenLiteral: self.readIdentifier())
+        } else if currentChar.isNumber {
+            return Token(tokenType: .INT_CONST, tokenLiteral: self.readNumber())
+        } else {
+            fatalError("Token is unknown.")
         }
+
+        self.readChar()
+        return token
     }
 
     func getNextCommand() -> String {
@@ -151,5 +136,47 @@ class JackTokenizer {
 
         let stringVal = currentToken.replacingOccurrences(of: "\"", with: "")
         return stringVal
+    }
+
+    private func readChar() {
+        if self.readPosition >= self.input.count {
+            self.currentChar = "0"
+        } else {
+            self.currentChar = Array(self.input)[self.readPosition]
+        }
+        self.position = self.readPosition
+        self.readPosition += 1
+    }
+
+    private func skipWhiteSpace() {
+        while self.currentChar.isWhitespace || self.currentChar == "\t" || self.currentChar == "\n" || self.currentChar == "\r" {
+            readChar()
+        }
+    }
+
+    private func readNumber() -> String {
+        let position = self.position
+        while self.currentChar.isNumber {
+            self.readChar()
+        }
+        return String(Array(self.input)[position...self.position])
+    }
+
+    private func readString() -> String {
+        var token: String = ""
+        while !Symbol.symbolSets.contains(self.currentChar) {
+            token.append(self.currentChar)
+            self.readChar()
+        }
+        return token
+    }
+
+    private func readIdentifier() -> String {
+        var token: String = ""
+        while self.currentChar.isLetter {
+            token.append(self.currentChar)
+            self.readChar()
+        }
+        return token
     }
 }

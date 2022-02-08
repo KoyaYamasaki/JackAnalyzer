@@ -9,16 +9,14 @@
 import Foundation
 
 protocol TokenLiteral {
-    associatedtype T
-
     func literal() -> String
 }
 
-struct Token<T> {
+struct Token {
     let tokenType: TokenType
-    let tokenLiteral: T
+    let tokenLiteral: String
 
-    init(tokenType: TokenType, tokenLiteral: T) {
+    init(tokenType: TokenType, tokenLiteral: String) {
         self.tokenType = tokenType
         self.tokenLiteral = tokenLiteral
     }
@@ -59,6 +57,11 @@ enum Keyword: String, TokenLiteral {
 
     func literal() -> String {
         return self.rawValue
+    }
+
+    static var keywordSets: Set<String> {
+        return ["class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean", "void", "true", "false",
+                "null", "this", "let", "do", "if", "else", "while", "return"]
     }
 }
 

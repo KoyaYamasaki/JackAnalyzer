@@ -20,42 +20,48 @@ class TestJackTokenizer: XCTestCase {
     }
 
     func test01() throws {
-        var index = 0
-        let correctArray = ["let", "a", "=", "10", ";"]
-        let testToken = JackTokenizer(contentStr: "let a = 10;")
-        let t = Token(tokenType: .KEYWORD, tokenLiteral: .PIPE)
-
-        while testToken.hasMoreCommands() {
-            testToken.advance()
-            XCTAssertEqual(testToken.currentToken, correctArray[index])
-            index += 1
-        }
-    }
-
-    func test02() throws {
-        var index = 0
         let testStr =
         """
-            class Main {
+            // test
+
+
+            class Main { // test2
                 function void printHello() {
                     do Output.printString("Hello World");
                 }
             }
         """
-        let correctArray = ["class", "Main", "{", "function", "void", "printHello", "(", ")", "{", "do", "Output", ".", "printString", "(", "\"Hello World\"", ")", ";", "}", "}"]
+
+        let correctArray = [
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "class"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "Main"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "{"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "function"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "void"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "printHello"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "("),
+            Token(tokenType: .SYMBOL, tokenLiteral: ")"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "{"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "do"),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "Output"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "."),
+            Token(tokenType: .IDENTIFIER, tokenLiteral: "printString"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "("),
+            Token(tokenType: .STRING_CONST, tokenLiteral: "\"Hello World\""),
+            Token(tokenType: .SYMBOL, tokenLiteral: ")"),
+            Token(tokenType: .SYMBOL, tokenLiteral: ";"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "}"),
+            Token(tokenType: .SYMBOL, tokenLiteral: "}"),
+        ]
+
         let testToken = JackTokenizer(contentStr: testStr)
 
+        var index = 0
         while testToken.hasMoreCommands() {
-            testToken.advance()
-            XCTAssertEqual(testToken.currentToken, correctArray[index])
+            let tok = testToken.advance()
+            XCTAssertEqual(tok.tokenType, correctArray[index].tokenType)
+            XCTAssertEqual(tok.tokenLiteral, correctArray[index].tokenLiteral)
             index += 1
-        }
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
         }
     }
 
