@@ -10,16 +10,11 @@ import Foundation
 
 class JackTokenizer {
 
-    var currentToken = ""
-    var previousToken = ""
-
-    var input: String = ""
+    private var input: String = ""
 
     private var position: Int = -1
-    var readPosition: Int = 0
+    private var readPosition: Int = 0
     private var currentChar: Character = " "
-
-    private var tokenList: [String] = []
 
     convenience init(fileURL: URL) {
         guard let fileContents = try? String(contentsOf: fileURL) else {
@@ -53,7 +48,9 @@ class JackTokenizer {
     }
 
     func hasMoreCommands() -> Bool {
-        return position + 1 != self.input.count
+        print("readposition: \(readPosition)")
+        print("input count: \(self.input.count)")
+        return readPosition != self.input.count
     }
 
     func advance() -> Token {
@@ -82,22 +79,16 @@ class JackTokenizer {
         return token
     }
 
-    func getNextCommand() -> String {
-        return tokenList[position+1]
-    }
-
     private func readChar() {
-        if self.readPosition >= self.input.count {
-            self.currentChar = "0"
-        } else {
+        if self.hasMoreCommands() {
             self.currentChar = Array(self.input)[self.readPosition]
+            self.position = self.readPosition
+            self.readPosition += 1
         }
-        self.position = self.readPosition
-        self.readPosition += 1
     }
 
     private func skipWhiteSpace() {
-        while self.currentChar.isWhitespace || self.currentChar == "\t" || self.currentChar == "\n" || self.currentChar == "\r" {
+        while self.currentChar.isWhitespace || self.currentChar.isNewline || self.currentChar == "\t" {
             readChar()
         }
     }

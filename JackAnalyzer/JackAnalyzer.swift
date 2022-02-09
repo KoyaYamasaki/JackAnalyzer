@@ -10,70 +10,96 @@ import Foundation
 
 class JackAnalyzer {
     
-    var tokenizer: JackTokenizer!
-    var compilationEngine: CompilationEngine!
+    var tokenizer: JackTokenizer
+    var compilationEngine: CompilationEngine
 
-    func compileSingleFile(_ url: URL) {
-        var fileName = url.lastPathComponent
-        fileName.insert("X", at: fileName.firstIndex(of: ".")!)
+    var currentToken: Token!
+    var nextToken: Token!
 
-        guard fileName.hasSuffix(".jack") else {
-            fatalError("Selected file is not .jack format")
-        }
+    init(tokenizer: JackTokenizer, compilationEngine: CompilationEngine) {
+        self.tokenizer = tokenizer
+        self.compilationEngine = compilationEngine
 
-        let outputFile = fileName.replacingOccurrences(of: "jack", with: "xml")
-        let outputFileDir = url.deletingLastPathComponent().appendingPathComponent(outputFile)
-        tokenizer = JackTokenizer(fileURL: url)
-        compilationEngine = CompilationEngine(outputFileDir: outputFileDir)
-        startParse()
+        // Load two tokens and set currentToken & nextToken.
+        self.advanceAndSetTokens()
+        self.advanceAndSetTokens()
     }
 
-    func compileMultiFiles(_ url: URL) {
-        do {
-            // Get the directory contents urls (including subfolders urls)
-            let directoryContents =
-                try FileManager
-                    .default
-                    .contentsOfDirectory(
-                        at: url,
-                        includingPropertiesForKeys: nil
-            )
-            let jackFileUrls = directoryContents.filter{ $0.pathExtension == "jack" }
-            let outputFile = url.lastPathComponent.appending(".xml")
-            
-            guard jackFileUrls.count != 0 else {
-                fatalError("There has not contained .jack format file")
-            }
-            
-            let outputFileDir = jackFileUrls.first!.deletingLastPathComponent().appendingPathComponent(outputFile)
-            
-            for jackUrl in jackFileUrls {
-
-            }
-            
-        } catch {
-            fatalError("Unable to get list of files inside the directory")
-        }
-    }
-
-    private func startParse() {
+    func startParse() -> Program {
+        var program = Program(statements: [])
         while tokenizer.hasMoreCommands() {
-            self.parseStatements(token: tokenizer.advance())
+            print("token has more")
+            program.statements.append(self.parseStatements())
+            advanceAndSetTokens()
         }
 
-//        compilationEngine.outPutToXml()
+        return program
     }
 
-    private func parseStatements(token: Token) {
-        switch token.tokenType {
+    private func advanceAndSetTokens() {
+        currentToken = nextToken
+        nextToken = self.tokenizer.advance()
+    }
+
+    private func expectPeek(tokenType: TokenType) -> Bool {
+        if nextToken.tokenType == tokenType {
+            return true
+        } else {
+            fatalError("NextToken does not meet expectation, nextTokenType: \(nextToken.tokenType), tokenType: \(tokenType)")
+        }
+    }
+
+    private func parseStatements() -> Statement {
+        switch currentToken.tokenType {
         case .LET:
-            parseLetStatement()
+            return parseLetStatement()
         default:
-            print("parseStatements default")
+            fatalError("Statement is not let")
         }
     }
 
-    private func parseLetStatement() {
-        print("parseLetStatement")
+    private func parseLetStatement() -> Statement {
+        let letToken = currentToken
+
+        if expectPeek(tokenType: .IDENTIFIER) {
+            advanceAndSetTokens()
+        }
+
+        let letIdent = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+
+        if expectPeek(tokenType: .EQUAL) {
+            advanceAndSetTokens()
+        }
+
+        advanceAndSetTokens()
+
+        let letExpression = parseExpression()
+
+        if expectPeek(tokenType: .SEMICOLON) {
+            advanceAndSetTokens()
+        }
+
+        return LetStatement(token: letToken!, name: letIdent, expression: letExpression)
+    }
+
+    private func parseExpression() -> Expression {
+        var expression: Expression
+        switch currentToken.tokenType {
+        case .BOOLEAN:
+            expression = parseBoolean()
+        default:
+            expression = parseIdentifier()
+        }
+
+        advanceAndSetTokens()
+        return expression
+    }
+
+    private func parseBoolean() -> Expression {
+        return Boolean(token: currentToken, value: Bool(currentToken.tokenLiteral)!)
+    }
+
+    private func parseIdentifier() -> Expression {
+        return Identifier(token: currentToken, value: currentToken.tokenLiteral)
     }
 }

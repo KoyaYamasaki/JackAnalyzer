@@ -15,6 +15,9 @@ class CompilationEngine {
     var insertOffset = 0
     var indentIndex = 0
 
+    // This is for test purpose.
+    init() {}
+
     init(outputFileDir: URL) {
         FileManager
             .default
