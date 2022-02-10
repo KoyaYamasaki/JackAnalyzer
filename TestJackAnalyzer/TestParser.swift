@@ -21,51 +21,63 @@ class TestParser: XCTestCase {
     }
 
     func testLetStatement() throws {
-        let testIdent = "letIdentifier"
-        let testExpression = "true"
-        let testStmt = "let \(testIdent) = \(testExpression);"
+        let testCount = 3
+        let testIdent = ["letIdentifier", "x", "y"]
+        let testExpression = ["true", "15", "x"]
 
-        let tokenizer = JackTokenizer(contentStr: testStmt)
-        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+        for i in 0..<testCount {
+            let testStmt = "let \(testIdent[i]) = \(testExpression[i]);"
 
-        let program = analyzer.startParse()
-        XCTAssertEqual(program.statements.count, 1)
+            let tokenizer = JackTokenizer(contentStr: testStmt)
+            let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
 
-        let stmt = program.statements[0]
+            let program = analyzer.startParse()
+            XCTAssertEqual(program.statements.count, 1)
 
-        XCTAssertEqual(stmt.printSelf(), testStmt)
+            let stmt = program.statements[0]
 
-        guard let letStmt = stmt as? LetStatement else {
-            XCTAssertThrowsError("Statement is not LET")
-            return
+            XCTAssertEqual(stmt.printSelf(), testStmt)
+
+            guard let letStmt = stmt as? LetStatement else {
+                XCTAssertThrowsError("Statement is not LET")
+                return
+            }
+
+            XCTAssertEqual(letStmt.name.token.tokenType, .IDENTIFIER)
+            XCTAssertEqual(letStmt.name.value, testIdent[i])
+
+            XCTAssertEqual(letStmt.expression.printSelf(), testExpression[i])
         }
-
-        XCTAssertEqual(letStmt.name.token.tokenType, .IDENTIFIER)
-        XCTAssertEqual(letStmt.name.value, testIdent)
-
-        XCTAssertEqual(letStmt.expression.printSelf(), testExpression)
     }
 
     func testReturnStatement() throws {
-        let testExpression = "true"
-        let testStmt = "return \(testExpression);"
+        let testCount = 4
+        let testExpression = ["true", "5", "foobar", ""]
 
-        let tokenizer = JackTokenizer(contentStr: testStmt)
-        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
 
-        let program = analyzer.startParse()
-        XCTAssertEqual(program.statements.count, 1)
+        for i in 0..<testCount {
+            var testStmt = ""
+            testStmt = testExpression[i] != "" ? "return \(testExpression[i]);" : "return;"
 
-        let stmt = program.statements[0]
+            let tokenizer = JackTokenizer(contentStr: testStmt)
+            let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+            
+            let program = analyzer.startParse()
+            XCTAssertEqual(program.statements.count, 1)
+            
+            let stmt = program.statements[0]
+            
+            guard let returnStmt = stmt as? ReturnStatement else {
+                XCTAssertThrowsError("Statement is not Return")
+                return
+            }
 
-        XCTAssertEqual(stmt.printSelf(), testStmt)
+            XCTAssertEqual(returnStmt.printSelf(), testStmt)
 
-        guard let returnStmt = stmt as? ReturnStatement else {
-            XCTAssertThrowsError("Statement is not Return")
-            return
+            XCTAssertEqual(returnStmt.token.tokenType, .RETURN)
+            if let exp = returnStmt.expression {
+                XCTAssertEqual(exp.printSelf(), testExpression[i])
+            }
         }
-
-        XCTAssertEqual(returnStmt.token.tokenType, .RETURN)
-        XCTAssertEqual(returnStmt.expression.printSelf(), testExpression)
     }
 }

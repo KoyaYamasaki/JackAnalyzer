@@ -41,11 +41,7 @@ class JackAnalyzer {
     }
 
     private func expectPeek(tokenType: TokenType) -> Bool {
-        if nextToken.tokenType == tokenType {
-            return true
-        } else {
-            fatalError("NextToken does not meet expectation, nextTokenType: \(nextToken.tokenType), tokenType: \(tokenType)")
-        }
+        return nextToken.tokenType == tokenType
     }
 
     private func parseStatements() -> Statement {
@@ -64,12 +60,16 @@ class JackAnalyzer {
 
         if expectPeek(tokenType: .IDENTIFIER) {
             advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .IDENTIFIER)
         }
 
         let letIdent = Identifier(token: currentToken, value: currentToken.tokenLiteral)
 
         if expectPeek(tokenType: .EQUAL) {
             advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .EQUAL)
         }
 
         advanceAndSetTokens()
@@ -78,6 +78,8 @@ class JackAnalyzer {
 
         if expectPeek(tokenType: .SEMICOLON) {
             advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .SEMICOLON)
         }
 
         return LetStatement(token: letToken!, name: letIdent, expression: letExpression)
@@ -86,12 +88,19 @@ class JackAnalyzer {
     private func parseReturnStatement() -> Statement {
         let returnToken = currentToken
 
+        if expectPeek(tokenType: .SEMICOLON) {
+            advanceAndSetTokens()
+            return ReturnStatement(token: returnToken!, expression: nil)
+        }
+
         advanceAndSetTokens()
 
         let returnExpression = parseExpression()
 
         if expectPeek(tokenType: .SEMICOLON) {
             advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .SEMICOLON)
         }
 
         return ReturnStatement(token: returnToken!, expression: returnExpression)
@@ -102,6 +111,12 @@ class JackAnalyzer {
         switch currentToken.tokenType {
         case .BOOLEAN:
             expression = parseBoolean()
+        case .STRING_CONST:
+            expression = parseStringLiteral()
+        case .INT_CONST:
+            expression = parseIntegerLiteral()
+        case .IDENTIFIER:
+            expression = parseIdentifier()
         default:
             expression = parseIdentifier()
         }
@@ -116,5 +131,18 @@ class JackAnalyzer {
 
     private func parseIdentifier() -> Expression {
         return Identifier(token: currentToken, value: currentToken.tokenLiteral)
+    }
+
+    private func parseStringLiteral() -> Expression {
+        return StringLiteral(token: currentToken, value: currentToken.tokenLiteral)
+    }
+
+    private func parseIntegerLiteral() -> Expression {
+        print("tokenLiteral", currentToken.tokenLiteral)
+        return IntegerLiteral(token: currentToken, value: Int(currentToken.tokenLiteral)!)
+    }
+
+    private func unexpectedToken(expectedToken: TokenType) {
+        fatalError("nextToken is not expected, expect=\(expectedToken), got=\(nextToken.tokenType)")
     }
 }

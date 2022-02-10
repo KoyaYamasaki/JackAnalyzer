@@ -31,10 +31,14 @@ struct LetStatement: Statement {
 
 struct ReturnStatement: Statement {
     let token: Token
-    let expression: Expression
+    let expression: Expression?
 
     func printSelf() -> String {
-        return token.tokenLiteral + " " + expression.printSelf() + ";"
+        if let exp = expression {
+            return token.tokenLiteral + " " + exp.printSelf() + ";"
+        } else {
+            return token.tokenLiteral + ";"
+        }
     }
 }
 
@@ -53,5 +57,23 @@ struct Boolean: Expression {
 
     func printSelf() -> String {
         return value.description
+    }
+}
+
+struct StringLiteral: Expression {
+    let token: Token
+    let value: String
+
+    func printSelf() -> String {
+        return value
+    }
+}
+
+struct IntegerLiteral: Expression {
+    let token: Token
+    let value: Int
+
+    func printSelf() -> String {
+        return String(value)
     }
 }

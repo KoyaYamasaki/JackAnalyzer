@@ -48,8 +48,6 @@ class JackTokenizer {
     }
 
     func hasMoreCommands() -> Bool {
-        print("readposition: \(readPosition)")
-        print("input count: \(self.input.count)")
         return readPosition != self.input.count
     }
 
@@ -94,11 +92,12 @@ class JackTokenizer {
     }
 
     private func readNumber() -> String {
-        let position = self.position
+        var token: String = ""
         while self.currentChar.isNumber {
+            token.append(self.currentChar)
             self.readChar()
         }
-        return String(Array(self.input)[position...self.position])
+        return token
     }
 
     private func readString() -> String {
