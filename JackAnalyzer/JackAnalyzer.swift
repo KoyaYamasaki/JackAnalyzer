@@ -27,11 +27,10 @@ class JackAnalyzer {
 
     func startParse() -> Program {
         var program = Program(statements: [])
-        while tokenizer.hasMoreCommands() {
-            print("token has more")
+        repeat {
             program.statements.append(self.parseStatements())
             advanceAndSetTokens()
-        }
+        } while tokenizer.hasMoreCommands()
 
         return program
     }
@@ -53,8 +52,10 @@ class JackAnalyzer {
         switch currentToken.tokenType {
         case .LET:
             return parseLetStatement()
+        case .RETURN:
+            return parseReturnStatement()
         default:
-            fatalError("Statement is not let")
+            fatalError("Statement is unknown")
         }
     }
 
@@ -80,6 +81,20 @@ class JackAnalyzer {
         }
 
         return LetStatement(token: letToken!, name: letIdent, expression: letExpression)
+    }
+
+    private func parseReturnStatement() -> Statement {
+        let returnToken = currentToken
+
+        advanceAndSetTokens()
+
+        let returnExpression = parseExpression()
+
+        if expectPeek(tokenType: .SEMICOLON) {
+            advanceAndSetTokens()
+        }
+
+        return ReturnStatement(token: returnToken!, expression: returnExpression)
     }
 
     private func parseExpression() -> Expression {
