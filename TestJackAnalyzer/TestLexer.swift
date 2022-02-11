@@ -1,6 +1,6 @@
 //
-//  TestBridgingTargetTests.swift
-//  TestBridgingTargetTests
+//  TestLexer.swift
+//  TestLexer
 //
 //  Created by 山崎宏哉 on 2022/02/06.
 //  Copyright © 2022 山崎宏哉. All rights reserved.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import TestBridgingTarget
 
-class TestJackTokenizer: XCTestCase {
+class TestLexer: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -54,7 +54,7 @@ class TestJackTokenizer: XCTestCase {
             Token(tokenType: .RBLACE, tokenLiteral: "}"),
         ]
 
-        let testToken = JackTokenizer(contentStr: testStr)
+        let testToken = Lexer(contentStr: testStr)
 
         var index = 0
         while testToken.hasMoreCommands() {

@@ -1,6 +1,6 @@
 //
-//  JackAnalyzer.swift
-//  JackAnalyzer
+//  Parser.swift
+//  Parser
 //
 //  Created by 山崎宏哉 on 2022/02/08.
 //  Copyright © 2022 山崎宏哉. All rights reserved.
@@ -8,16 +8,16 @@
 
 import Foundation
 
-class JackAnalyzer {
+class Parser {
     
-    var tokenizer: JackTokenizer
+    var tokenizer: Lexer
     var compilationEngine: CompilationEngine
 
     var program: Program!
     var currentToken: Token!
     var nextToken: Token!
 
-    init(tokenizer: JackTokenizer, compilationEngine: CompilationEngine) {
+    init(tokenizer: Lexer, compilationEngine: CompilationEngine) {
         self.tokenizer = tokenizer
         self.compilationEngine = compilationEngine
 

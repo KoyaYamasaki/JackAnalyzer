@@ -1,6 +1,6 @@
 //
-//  JackTokenizer.swift
-//  JackAnalyzer
+//  Lexer.swift
+//  Lexer
 //
 //  Created by 山崎宏哉 on 2022/01/05.
 //  Copyright © 2022 山崎宏哉. All rights reserved.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class JackTokenizer {
+class Lexer {
 
     private var input: String = ""
 
