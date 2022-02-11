@@ -20,6 +20,71 @@ class TestParser: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    func testClass01() throws {
+        let testClsName = "TestCls"
+        let testCls = "class \(testClsName) { function void main() { return 0; } }"
+
+        let tokenizer = JackTokenizer(contentStr: testCls)
+        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+        let program = analyzer.startParse()
+        let cls = program.cls
+
+        XCTAssertEqual(cls.printSelf(), testCls)
+        XCTAssertEqual(cls.token.tokenType, .CLASS)
+        XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
+        XCTAssertEqual(cls.name.value, testClsName)
+    }
+
+    func testClass02() throws {
+        let testCls = "let testNoCls = 10;"
+        let expectClsStr = "class Main { function void main() { \(testCls) } }"
+
+        let tokenizer = JackTokenizer(contentStr: testCls)
+        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+        let program = analyzer.startParse()
+        let cls = program.cls
+
+        XCTAssertEqual(cls.printSelf(), expectClsStr)
+        XCTAssertEqual(cls.token.tokenType, .CLASS)
+        XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
+        XCTAssertEqual(cls.name.value, "Main")
+    }
+
+    func testFunction01() throws {
+        let testFnName = "testFn"
+        let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
+        let testFn = "function void \(testFnName)() { return 0; }"
+
+        let tokenizer = JackTokenizer(contentStr: testFn)
+        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+        let program = analyzer.startParse()
+        XCTAssertEqual(program.cls.functions.count, 1)
+
+        let fn = program.cls.functions[0]
+
+        XCTAssertEqual(fn.printSelf(), testFn)
+        XCTAssertEqual(fn.token.tokenType, .FUNCTION)
+        XCTAssertEqual(fn.returnType.tokenType, returnType.tokenType)
+        XCTAssertEqual(fn.name.value, testFnName)
+    }
+
+    func testFunction02() throws {
+        let testfn = "return true;"
+        let expectFn = "function void main() { \(testfn) }"
+
+        let tokenizer = JackTokenizer(contentStr: testfn)
+        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
+        let program = analyzer.startParse()
+        XCTAssertEqual(program.cls.functions.count, 1)
+
+        let fn = program.cls.functions[0]
+
+        XCTAssertEqual(fn.printSelf(), expectFn)
+        XCTAssertEqual(fn.token.tokenType, .FUNCTION)
+        XCTAssertEqual(fn.returnType.tokenType, .VOID)
+        XCTAssertEqual(fn.name.value, "main")
+    }
+
     func testLetStatement() throws {
         let testCount = 3
         let testIdent = ["letIdentifier", "x", "y"]
@@ -32,9 +97,9 @@ class TestParser: XCTestCase {
             let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
 
             let program = analyzer.startParse()
-            XCTAssertEqual(program.statements.count, 1)
+            XCTAssertEqual(program.cls.functions[0].statements.count, 1)
 
-            let stmt = program.statements[0]
+            let stmt = program.cls.functions[0].statements[0]
 
             XCTAssertEqual(stmt.printSelf(), testStmt)
 
@@ -63,9 +128,9 @@ class TestParser: XCTestCase {
             let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compEngine)
             
             let program = analyzer.startParse()
-            XCTAssertEqual(program.statements.count, 1)
+            XCTAssertEqual(program.cls.functions[0].statements.count, 1)
             
-            let stmt = program.statements[0]
+            let stmt = program.cls.functions[0].statements[0]
             
             guard let returnStmt = stmt as? ReturnStatement else {
                 XCTAssertThrowsError("Statement is not Return")

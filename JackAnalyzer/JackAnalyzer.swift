@@ -13,6 +13,7 @@ class JackAnalyzer {
     var tokenizer: JackTokenizer
     var compilationEngine: CompilationEngine
 
+    var program: Program!
     var currentToken: Token!
     var nextToken: Token!
 
@@ -21,18 +22,100 @@ class JackAnalyzer {
         self.compilationEngine = compilationEngine
 
         // Load two tokens and set currentToken & nextToken.
-        self.advanceAndSetTokens()
-        self.advanceAndSetTokens()
+        advanceAndSetTokens()
+        advanceAndSetTokens()
     }
 
     func startParse() -> Program {
-        var program = Program(statements: [])
+        var cls = parseClass()
+
         repeat {
-            program.statements.append(self.parseStatements())
+            cls.functions.append(self.parseFunction())
             advanceAndSetTokens()
         } while tokenizer.hasMoreCommands()
 
-        return program
+        return Program(cls: cls)
+    }
+
+    private func parseFunction() -> Function {
+        var function: Function
+
+        if currentToken.tokenType != .FUNCTION {
+            function = makeProvisionalFunction()
+        } else {
+            let fnToken = currentToken
+
+            self.advanceAndSetTokens()
+
+            let returnType = currentToken
+
+            if expectPeek(tokenType: .IDENTIFIER) {
+                self.advanceAndSetTokens()
+            } else {
+                unexpectedToken(expectedToken: .IDENTIFIER)
+            }
+
+            let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: currentToken.tokenLiteral)
+            let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
+
+            self.advanceAndSetTokens()
+            function = Function(token: fnToken!, returnType: returnType!, name: fnName, statements: [])
+        }
+
+        repeat {
+            if let stmt = self.parseStatements() {
+                function.statements.append(stmt)
+            }
+            advanceAndSetTokens()
+        } while !expectPeek(tokenType: .FUNCTION) && tokenizer.hasMoreCommands()
+
+        return function
+    }
+
+    private func makeProvisionalFunction() -> Function {
+        let fnToken = Token(tokenType: .FUNCTION, tokenLiteral: "function")
+        let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
+        let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "main")
+        let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
+
+        return Function(token: fnToken, returnType: returnType, name: fnName, statements: [])
+    }
+
+    private func parseClass() -> Class {
+        if currentToken.tokenType != .CLASS {
+            return makeProvisionalClass()
+        }
+
+        let clsToken = currentToken
+
+        if expectPeek(tokenType: .IDENTIFIER) {
+            self.advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .IDENTIFIER)
+        }
+
+        let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: currentToken.tokenLiteral)
+        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
+
+        if expectPeek(tokenType: .LBLACE) {
+            self.advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .IDENTIFIER)
+        }
+
+        self.advanceAndSetTokens()
+
+        return Class(token: clsToken!, name: clsName, functions: [])
+    }
+
+    private func makeProvisionalClass() -> Class {
+        let clsToken = Token(tokenType: .CLASS, tokenLiteral: "class")
+
+        let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "Main")
+
+        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
+
+        return Class(token: clsToken, name: clsName, functions: [])
     }
 
     private func advanceAndSetTokens() {
@@ -44,14 +127,15 @@ class JackAnalyzer {
         return nextToken.tokenType == tokenType
     }
 
-    private func parseStatements() -> Statement {
+    private func parseStatements() -> Statement? {
         switch currentToken.tokenType {
         case .LET:
             return parseLetStatement()
         case .RETURN:
             return parseReturnStatement()
         default:
-            fatalError("Statement is unknown")
+            print("currentTokenType : \(currentToken.tokenType)")
+            return nil
         }
     }
 
@@ -121,7 +205,7 @@ class JackAnalyzer {
             expression = parseIdentifier()
         }
 
-        advanceAndSetTokens()
+//        advanceAndSetTokens()
         return expression
     }
 

@@ -16,7 +16,38 @@ protocol Statement: Node {}
 protocol Expression: Node {}
 
 struct Program {
+    var cls: Class
+}
+
+struct Class: Node {
+    let token: Token
+    let name: Identifier
+    var functions: [Function]
+
+    func printSelf() -> String {
+        var fnStr = ""
+        for fn in functions {
+            fnStr = fnStr + fn.printSelf()
+        }
+
+        return token.tokenLiteral + " " + name.value + " " + "{" + " " + fnStr + " " + "}"
+    }
+}
+
+struct Function: Node {
+    let token: Token
+    let returnType: Token
+    let name: Identifier
+    var parameters: [Token]?
     var statements: [Statement]
+
+    func printSelf() -> String {
+        var stmtStr = ""
+        for stmt in statements {
+            stmtStr = stmtStr + stmt.printSelf()
+        }
+        return token.tokenLiteral + " " + returnType.tokenLiteral + " " + name.value + "()" + " {" + " " + stmtStr + " " + "}"
+    }
 }
 
 struct LetStatement: Statement {
