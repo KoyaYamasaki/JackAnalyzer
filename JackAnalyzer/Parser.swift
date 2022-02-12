@@ -10,15 +10,15 @@ import Foundation
 
 class Parser {
     
-    var tokenizer: Lexer
+    var lexer: Lexer
     var compilationEngine: CompilationEngine
 
     var program: Program!
     var currentToken: Token!
     var nextToken: Token!
 
-    init(tokenizer: Lexer, compilationEngine: CompilationEngine) {
-        self.tokenizer = tokenizer
+    init(lexer: Lexer, compilationEngine: CompilationEngine) {
+        self.lexer = lexer
         self.compilationEngine = compilationEngine
 
         // Load two tokens and set currentToken & nextToken.
@@ -32,7 +32,7 @@ class Parser {
         repeat {
             cls.functions.append(self.parseFunction())
             advanceAndSetTokens()
-        } while tokenizer.hasMoreCommands()
+        } while lexer.hasMoreCommands()
 
         return Program(cls: cls)
     }
@@ -67,7 +67,7 @@ class Parser {
                 function.statements.append(stmt)
             }
             advanceAndSetTokens()
-        } while !expectPeek(tokenType: .FUNCTION) && tokenizer.hasMoreCommands()
+        } while !expectPeek(tokenType: .FUNCTION) && lexer.hasMoreCommands()
 
         return function
     }
@@ -120,7 +120,7 @@ class Parser {
 
     private func advanceAndSetTokens() {
         currentToken = nextToken
-        nextToken = self.tokenizer.advance()
+        nextToken = self.lexer.advance()
     }
 
     private func expectPeek(tokenType: TokenType) -> Bool {

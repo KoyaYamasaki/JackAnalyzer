@@ -24,8 +24,8 @@ class TestParser: XCTestCase {
         let testClsName = "TestCls"
         let testCls = "class \(testClsName) { function void main() { return 0; } }"
 
-        let tokenizer = Lexer(contentStr: testCls)
-        let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+        let lexer = Lexer(contentStr: testCls)
+        let parser = Parser(tokenizer: lexer, compilationEngine: compEngine)
         let program = analyzer.startParse()
         let cls = program.cls
 
@@ -39,8 +39,8 @@ class TestParser: XCTestCase {
         let testCls = "let testNoCls = 10;"
         let expectClsStr = "class Main { function void main() { \(testCls) } }"
 
-        let tokenizer = Lexer(contentStr: testCls)
-        let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+        let lexer = Lexer(contentStr: testCls)
+        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
         let program = analyzer.startParse()
         let cls = program.cls
 
@@ -55,8 +55,8 @@ class TestParser: XCTestCase {
         let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
         let testFn = "function void \(testFnName)() { return 0; }"
 
-        let tokenizer = Lexer(contentStr: testFn)
-        let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+        let lexer = Lexer(contentStr: testFn)
+        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
         let program = analyzer.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
@@ -72,8 +72,8 @@ class TestParser: XCTestCase {
         let testfn = "return true;"
         let expectFn = "function void main() { \(testfn) }"
 
-        let tokenizer = Lexer(contentStr: testfn)
-        let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+        let lexer = Lexer(contentStr: testfn)
+        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
         let program = analyzer.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
@@ -93,8 +93,8 @@ class TestParser: XCTestCase {
         for i in 0..<testCount {
             let testStmt = "let \(testIdent[i]) = \(testExpression[i]);"
 
-            let tokenizer = Lexer(contentStr: testStmt)
-            let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+            let lexer = Lexer(contentStr: testStmt)
+            let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
 
             let program = analyzer.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)
@@ -124,8 +124,8 @@ class TestParser: XCTestCase {
             var testStmt = ""
             testStmt = testExpression[i] != "" ? "return \(testExpression[i]);" : "return;"
 
-            let tokenizer = Lexer(contentStr: testStmt)
-            let analyzer = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+            let lexer = Lexer(contentStr: testStmt)
+            let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
             
             let program = analyzer.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)

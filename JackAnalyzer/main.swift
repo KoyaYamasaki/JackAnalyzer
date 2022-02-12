@@ -36,9 +36,9 @@ class Main {
 
         let outputFile = fileName.replacingOccurrences(of: "jack", with: "xml")
         let outputFileDir = url.deletingLastPathComponent().appendingPathComponent(outputFile)
-        let tokenizer = JackTokenizer(fileURL: url)
+        let lexer = Lexer(fileURL: url)
         let compilationEngine = CompilationEngine(outputFileDir: outputFileDir)
-        let analyzer = JackAnalyzer(tokenizer: tokenizer, compilationEngine: compilationEngine)
+        let parser = Parser(lexer: lexer, compilationEngine: compilationEngine)
     }
 
     static func compileMultiFiles(_ url: URL) {
