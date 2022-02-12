@@ -25,8 +25,8 @@ class TestParser: XCTestCase {
         let testCls = "class \(testClsName) { function void main() { return 0; } }"
 
         let lexer = Lexer(contentStr: testCls)
-        let parser = Parser(tokenizer: lexer, compilationEngine: compEngine)
-        let program = analyzer.startParse()
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let program = parser.startParse()
         let cls = program.cls
 
         XCTAssertEqual(cls.printSelf(), testCls)
@@ -40,8 +40,8 @@ class TestParser: XCTestCase {
         let expectClsStr = "class Main { function void main() { \(testCls) } }"
 
         let lexer = Lexer(contentStr: testCls)
-        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
-        let program = analyzer.startParse()
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let program = parser.startParse()
         let cls = program.cls
 
         XCTAssertEqual(cls.printSelf(), expectClsStr)
@@ -56,8 +56,8 @@ class TestParser: XCTestCase {
         let testFn = "function void \(testFnName)() { return 0; }"
 
         let lexer = Lexer(contentStr: testFn)
-        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
-        let program = analyzer.startParse()
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let program = parser.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
         let fn = program.cls.functions[0]
@@ -73,8 +73,8 @@ class TestParser: XCTestCase {
         let expectFn = "function void main() { \(testfn) }"
 
         let lexer = Lexer(contentStr: testfn)
-        let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
-        let program = analyzer.startParse()
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let program = parser.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
         let fn = program.cls.functions[0]
@@ -94,9 +94,9 @@ class TestParser: XCTestCase {
             let testStmt = "let \(testIdent[i]) = \(testExpression[i]);"
 
             let lexer = Lexer(contentStr: testStmt)
-            let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+            let parser = Parser(lexer: lexer, compilationEngine: compEngine)
 
-            let program = analyzer.startParse()
+            let program = parser.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)
 
             let stmt = program.cls.functions[0].statements[0]
@@ -125,9 +125,9 @@ class TestParser: XCTestCase {
             testStmt = testExpression[i] != "" ? "return \(testExpression[i]);" : "return;"
 
             let lexer = Lexer(contentStr: testStmt)
-            let parser = Parser(tokenizer: tokenizer, compilationEngine: compEngine)
+            let parser = Parser(lexer: lexer, compilationEngine: compEngine)
             
-            let program = analyzer.startParse()
+            let program = parser.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)
             
             let stmt = program.cls.functions[0].statements[0]
@@ -143,6 +143,34 @@ class TestParser: XCTestCase {
             if let exp = returnStmt.expression {
                 XCTAssertEqual(exp.printSelf(), testExpression[i])
             }
+        }
+    }
+
+    func testDoStatement() throws {
+        let fnName = "add"
+        let args = ["2", "3"]
+        let testStmt = "do \(fnName)(\(args[0]), \(args[1]));"
+
+        let lexer = Lexer(contentStr: testStmt)
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+
+        guard let doStmt = stmt as? DoStatement else {
+            XCTAssertThrowsError("Statement is not Do")
+            return
+        }
+
+        XCTAssertEqual(doStmt.printSelf(), testStmt)
+
+        XCTAssertEqual(doStmt.token.tokenType, .DO)
+        XCTAssertEqual(doStmt.fnName.token.tokenType, .IDENTIFIER)
+        XCTAssertEqual(doStmt.fnName.value, fnName)
+        for (index, arg) in doStmt.arguments.enumerated() {
+            XCTAssertEqual(arg.printSelf(), args[index])
         }
     }
 }

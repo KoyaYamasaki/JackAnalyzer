@@ -133,6 +133,8 @@ class Parser {
             return parseLetStatement()
         case .RETURN:
             return parseReturnStatement()
+        case .DO:
+            return parseDoStatement()
         default:
             print("currentTokenType : \(currentToken.tokenType)")
             return nil
@@ -166,7 +168,7 @@ class Parser {
             unexpectedToken(expectedToken: .SEMICOLON)
         }
 
-        return LetStatement(token: letToken!, name: letIdent, expression: letExpression)
+        return LetStatement(token: letToken!, name: letIdent, expression: letExpression!)
     }
 
     private func parseReturnStatement() -> Statement {
@@ -190,10 +192,50 @@ class Parser {
         return ReturnStatement(token: returnToken!, expression: returnExpression)
     }
 
-    private func parseExpression() -> Expression {
+    private func parseDoStatement() -> Statement {
+        let doToken = currentToken
+
+        if expectPeek(tokenType: .IDENTIFIER) {
+            advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .IDENTIFIER)
+        }
+
+        var clsName: Identifier?
+        var fnName: Identifier
+
+        if expectPeek(tokenType: .DOT) {
+            clsName = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+            advanceAndSetTokens()
+            if expectPeek(tokenType: .IDENTIFIER) {
+                advanceAndSetTokens()
+            } else {
+                unexpectedToken(expectedToken: .IDENTIFIER)
+            }
+        }
+
+        fnName = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+
+        if expectPeek(tokenType: .LPARENTHESIS) {
+            advanceAndSetTokens()
+        }
+
+        var doStmt = DoStatement(token: doToken!, clsName: clsName, fnName: fnName, arguments: [])
+        repeat {
+            advanceAndSetTokens()
+            if let exp = self.parseExpression() {
+                doStmt.arguments.append(exp)
+            }
+        } while !expectPeek(tokenType: .SEMICOLON)
+
+        return doStmt
+    }
+
+    private func parseExpression() -> Expression? {
         var expression: Expression
+        print("tokenType : \(currentToken.tokenType)")
         switch currentToken.tokenType {
-        case .BOOLEAN:
+        case .TRUE, .FALSE:
             expression = parseBoolean()
         case .STRING_CONST:
             expression = parseStringLiteral()
@@ -202,10 +244,9 @@ class Parser {
         case .IDENTIFIER:
             expression = parseIdentifier()
         default:
-            expression = parseIdentifier()
+            return nil
         }
 
-//        advanceAndSetTokens()
         return expression
     }
 

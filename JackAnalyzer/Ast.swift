@@ -73,6 +73,27 @@ struct ReturnStatement: Statement {
     }
 }
 
+struct DoStatement: Statement {
+    let token: Token
+    var clsName: Identifier?
+    let fnName: Identifier
+    var arguments: [Expression]
+
+    func printSelf() -> String {
+        var argStr = ""
+        for arg in arguments {
+            argStr += "\(arg.printSelf()), "
+        }
+        argStr.removeLast(2)
+
+        if let cName = clsName {
+            return token.tokenLiteral + " " + cName.value + "." + fnName.value + "(\(argStr));"
+        } else {
+            return token.tokenLiteral + " " + fnName.value + "(\(argStr));"
+        }
+    }
+}
+
 struct Identifier: Expression {
     let token: Token
     let value: String
