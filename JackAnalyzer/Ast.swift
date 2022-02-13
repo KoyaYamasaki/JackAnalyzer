@@ -124,6 +124,30 @@ struct DoStatement: Statement {
     }
 }
 
+struct IfStatement: Statement {
+    let token: Token
+    let condition: Expression
+    var consequence: [Statement]
+    var alternative: [Statement]?
+
+    func printSelf() -> String {
+        var conseqStr = ""
+        for conseq in consequence {
+            conseqStr += "\(conseq.printSelf().indent(indent))\n"
+        }
+
+        if let alternative = alternative {
+            var alterStr = ""
+            for alter in alternative {
+                alterStr += "\(alter.printSelf().indent(indent))\n"
+            }
+            return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}" + " else " + "{\n" + alterStr + "}"
+        } else {
+            return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}"
+        }
+    }
+}
+
 struct Identifier: Expression {
     let token: Token
     let value: String

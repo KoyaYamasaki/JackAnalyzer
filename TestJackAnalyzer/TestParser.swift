@@ -221,4 +221,72 @@ class TestParser: XCTestCase {
             XCTAssertEqual(arg.printSelf(), args[index])
         }
     }
+
+    func testIfStatement01() throws {
+        let testCond = "false"
+        let testIfStmt =
+        """
+        if (\(testCond)) {
+        } else {
+        }
+        """
+
+        let lexer = Lexer(contentStr: testIfStmt)
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+
+        guard let ifStmt = stmt as? IfStatement else {
+            XCTAssertThrowsError("Statement is not Do")
+            return
+        }
+
+        XCTAssertEqual(ifStmt.printSelf(), testIfStmt)
+
+        XCTAssertEqual(ifStmt.token.tokenType, .IF)
+        XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
+    }
+
+    func testIfStatement02() throws {
+        let testCond = "true"
+        let testConseq = ["let a = 10;", "return a;"]
+        let testAlter = ["let b = true;", "return b;"]
+        let testIfStmt =
+        """
+        if (\(testCond)) {
+            \(testConseq[0])
+            \(testConseq[1])
+        } else {
+            \(testAlter[0])
+            \(testAlter[1])
+        }
+        """
+
+        let lexer = Lexer(contentStr: testIfStmt)
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+
+        guard let ifStmt = stmt as? IfStatement else {
+            XCTAssertThrowsError("Statement is not Do")
+            return
+        }
+
+        XCTAssertEqual(ifStmt.printSelf(), testIfStmt)
+
+        XCTAssertEqual(ifStmt.token.tokenType, .IF)
+        XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
+        for (index, conseq) in ifStmt.consequence.enumerated() {
+            XCTAssertEqual(conseq.printSelf(), testConseq[index])
+        }
+        for (index, alter) in ifStmt.alternative!.enumerated() {
+            XCTAssertEqual(alter.printSelf(), testAlter[index])
+        }
+     }
 }

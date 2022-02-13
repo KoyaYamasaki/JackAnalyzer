@@ -79,6 +79,7 @@ class Parser {
             function = Function(token: fnToken!, returnType: returnType!, name: fnName, parameters: [], vars: varStatements, statements: [])
         }
 
+        // Need to repeat at least once.
         repeat {
             if let stmt = self.parseStatements() {
                 function.statements.append(stmt)
@@ -152,6 +153,8 @@ class Parser {
             return parseReturnStatement()
         case .DO:
             return parseDoStatement()
+        case .IF:
+            return parseIfStatement()
         default:
             print("currentTokenType : \(currentToken.tokenType)")
             return nil
@@ -265,6 +268,56 @@ class Parser {
         } while !expectPeek(tokenType: .SEMICOLON)
 
         return doStmt
+    }
+
+    private func parseIfStatement() -> Statement {
+        let ifToken = currentToken
+
+        if expectPeek(tokenType: .LPARENTHESIS) {
+            self.advanceAndSetTokens()
+        }
+
+        advanceAndSetTokens()
+
+        let condition = parseExpression()
+
+        var ifStmt = IfStatement(token: ifToken!, condition: condition!, consequence: [], alternative: nil)
+
+        if expectPeek(tokenType: .RPARENTHESIS) {
+            self.advanceAndSetTokens()
+        }
+
+        if expectPeek(tokenType: .LBLACE) {
+            self.advanceAndSetTokens()
+        }
+
+        while !expectPeek(tokenType: .RBLACE) && lexer.hasMoreCommands() {
+            if let stmt = self.parseStatements() {
+                ifStmt.consequence.append(stmt)
+            } else {
+                self.advanceAndSetTokens()
+            }
+        }
+
+        self.advanceAndSetTokens()
+
+        if expectPeek(tokenType: .ELSE) {
+            ifStmt.alternative = []
+            self.advanceAndSetTokens()
+            if expectPeek(tokenType: .LBLACE) {
+                self.advanceAndSetTokens()
+            }
+
+            while !expectPeek(tokenType: .RBLACE) && lexer.hasMoreCommands() {
+                if let stmt = self.parseStatements() {
+                    ifStmt.alternative?.append(stmt)
+                } else {
+                    self.advanceAndSetTokens()
+                }
+            }
+        }
+
+        return ifStmt
     }
 
     private func parseExpression() -> Expression? {
