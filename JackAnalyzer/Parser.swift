@@ -58,8 +58,25 @@ class Parser {
             let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: currentToken.tokenLiteral)
             let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
 
-            self.advanceAndSetTokens()
-            function = Function(token: fnToken!, returnType: returnType!, name: fnName, statements: [])
+            if expectPeek(tokenType: .LPARENTHESIS) {
+                self.advanceAndSetTokens()
+            }
+
+            if expectPeek(tokenType: .RPARENTHESIS) {
+                self.advanceAndSetTokens()
+            }
+
+            if expectPeek(tokenType: .LBLACE) {
+                self.advanceAndSetTokens()
+            }
+
+            var varStatements: [VarStatement] = []
+            while expectPeek(tokenType: .VAR) {
+                self.advanceAndSetTokens()
+                varStatements.append(parseVarStatement())
+            }
+
+            function = Function(token: fnToken!, returnType: returnType!, name: fnName, parameters: [], vars: varStatements, statements: [])
         }
 
         repeat {
@@ -78,7 +95,7 @@ class Parser {
         let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "main")
         let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
 
-        return Function(token: fnToken, returnType: returnType, name: fnName, statements: [])
+        return Function(token: fnToken, returnType: returnType, name: fnName, parameters: [], vars: [], statements: [])
     }
 
     private func parseClass() -> Class {
@@ -139,6 +156,25 @@ class Parser {
             print("currentTokenType : \(currentToken.tokenType)")
             return nil
         }
+    }
+
+    private func parseVarStatement() -> VarStatement {
+        let varToken = currentToken
+
+        if TokenType.keywordSets.contains(nextToken.tokenLiteral) {
+            self.advanceAndSetTokens()
+        }
+        let typeToken = currentToken
+
+        var namesArray: [Identifier] = []
+        while expectPeek(tokenType: .IDENTIFIER) {
+            self.advanceAndSetTokens()
+            namesArray.append(Identifier(token: currentToken!, value: currentToken.tokenLiteral))
+            self.advanceAndSetTokens()
+        }
+
+        
+        return VarStatement(token: varToken!, type: typeToken!, names: namesArray)
     }
 
     private func parseLetStatement() -> Statement {

@@ -22,13 +22,20 @@ class TestParser: XCTestCase {
 
     func testClass01() throws {
         let testClsName = "TestCls"
-        let testCls = "class \(testClsName) { function void main() { return 0; } }"
+        let testCls =
+        """
+        class \(testClsName) {
+            function void main() {
+                return 0;
+            }
+        }
+        """
 
         let lexer = Lexer(contentStr: testCls)
         let parser = Parser(lexer: lexer, compilationEngine: compEngine)
         let program = parser.startParse()
         let cls = program.cls
-
+        print("class:\n", cls.printSelf())
         XCTAssertEqual(cls.printSelf(), testCls)
         XCTAssertEqual(cls.token.tokenType, .CLASS)
         XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
@@ -37,7 +44,14 @@ class TestParser: XCTestCase {
 
     func testClass02() throws {
         let testCls = "let testNoCls = 10;"
-        let expectClsStr = "class Main { function void main() { \(testCls) } }"
+        let expectClsStr =
+        """
+        class Main {
+            function void main() {
+                \(testCls)
+            }
+        }
+        """
 
         let lexer = Lexer(contentStr: testCls)
         let parser = Parser(lexer: lexer, compilationEngine: compEngine)
@@ -53,7 +67,12 @@ class TestParser: XCTestCase {
     func testFunction01() throws {
         let testFnName = "testFn"
         let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
-        let testFn = "function void \(testFnName)() { return 0; }"
+        let testFn =
+            """
+            function void \(testFnName)() {
+                return 0;
+            }
+            """
 
         let lexer = Lexer(contentStr: testFn)
         let parser = Parser(lexer: lexer, compilationEngine: compEngine)
@@ -70,7 +89,12 @@ class TestParser: XCTestCase {
 
     func testFunction02() throws {
         let testfn = "return true;"
-        let expectFn = "function void main() { \(testfn) }"
+        let expectFn =
+            """
+            function void main() {
+                \(testfn)
+            }
+            """
 
         let lexer = Lexer(contentStr: testfn)
         let parser = Parser(lexer: lexer, compilationEngine: compEngine)
@@ -80,6 +104,31 @@ class TestParser: XCTestCase {
         let fn = program.cls.functions[0]
 
         XCTAssertEqual(fn.printSelf(), expectFn)
+        XCTAssertEqual(fn.token.tokenType, .FUNCTION)
+        XCTAssertEqual(fn.returnType.tokenType, .VOID)
+        XCTAssertEqual(fn.name.value, "main")
+    }
+
+    func testFunction03() throws {
+        let testVars = ["var int x;", "var boolean isDigit;", "var int y, z;"]
+        let testFn =
+        """
+        function void main() {
+            \(testVars[0])
+            \(testVars[1])
+            \(testVars[2])
+            return x;
+        }
+        """
+
+        let lexer = Lexer(contentStr: testFn)
+        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions.count, 1)
+
+        let fn = program.cls.functions[0]
+
+        XCTAssertEqual(fn.printSelf(), testFn)
         XCTAssertEqual(fn.token.tokenType, .FUNCTION)
         XCTAssertEqual(fn.returnType.tokenType, .VOID)
         XCTAssertEqual(fn.name.value, "main")
@@ -101,13 +150,12 @@ class TestParser: XCTestCase {
 
             let stmt = program.cls.functions[0].statements[0]
 
-            XCTAssertEqual(stmt.printSelf(), testStmt)
-
             guard let letStmt = stmt as? LetStatement else {
                 XCTAssertThrowsError("Statement is not LET")
                 return
             }
 
+            XCTAssertEqual(letStmt.printSelf(), testStmt)
             XCTAssertEqual(letStmt.name.token.tokenType, .IDENTIFIER)
             XCTAssertEqual(letStmt.name.value, testIdent[i])
 

@@ -8,6 +8,8 @@
 
 import Foundation
 
+let indent = 4
+
 protocol Node {
     func printSelf() -> String
 }
@@ -27,10 +29,16 @@ struct Class: Node {
     func printSelf() -> String {
         var fnStr = ""
         for fn in functions {
-            fnStr = fnStr + fn.printSelf()
+            fnStr += "\(fn.printSelf())\n"
         }
-
-        return token.tokenLiteral + " " + name.value + " " + "{" + " " + fnStr + " " + "}"
+        var fnArray = fnStr.components(separatedBy: "\n")
+        fnArray = fnArray.map {
+            if !$0.isEmpty {
+                return "\($0.indent(indent))"
+            }
+            return ""
+        }
+        return token.tokenLiteral + " " + name.value + " " + "{\n" + fnArray.joined(separator: "\n") + "}"
     }
 }
 
@@ -38,15 +46,37 @@ struct Function: Node {
     let token: Token
     let returnType: Token
     let name: Identifier
-    var parameters: [Token]?
+    var parameters: [Token]
+    var vars: [VarStatement]
     var statements: [Statement]
 
     func printSelf() -> String {
         var stmtStr = ""
         for stmt in statements {
-            stmtStr = stmtStr + stmt.printSelf()
+            stmtStr += "\(stmt.printSelf().indent(indent))\n"
         }
-        return token.tokenLiteral + " " + returnType.tokenLiteral + " " + name.value + "()" + " {" + " " + stmtStr + " " + "}"
+
+        var varStr = ""
+        for v in vars {
+            varStr += "\(v.printSelf().indent(indent))\n"
+        }
+        return token.tokenLiteral + " " + returnType.tokenLiteral + " " + name.value + "()" + " {\n" + varStr + stmtStr + "}"
+    }
+}
+
+struct VarStatement: Statement {
+    let token: Token
+    let type: Token
+    let names: [Identifier]
+
+    func printSelf() -> String {
+        var namesStr = ""
+        for name in names {
+            namesStr += "\(name.value), "
+        }
+        if !namesStr.isEmpty { namesStr.removeLast(2) }
+
+        return token.tokenLiteral + " " + type.tokenLiteral + " " + namesStr + ";"
     }
 }
 
