@@ -22,9 +22,13 @@ class TestParser: XCTestCase {
 
     func testClass01() throws {
         let testClsName = "TestCls"
+        let testVars = ["static boolean test;", "field int xxx;"]
         let testCls =
         """
         class \(testClsName) {
+            \(testVars[0])
+            \(testVars[1])
+
             function void main() {
                 return 0;
             }
@@ -40,6 +44,12 @@ class TestParser: XCTestCase {
         XCTAssertEqual(cls.token.tokenType, .CLASS)
         XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
         XCTAssertEqual(cls.name.value, testClsName)
+        XCTAssertEqual(cls.vars[0].token.tokenType, .STATIC)
+        XCTAssertEqual(cls.vars[1].token.tokenType, .FIELD)
+        XCTAssertEqual(cls.vars[0].type.tokenType, .BOOLEAN)
+        XCTAssertEqual(cls.vars[1].type.tokenType, .INT)
+        XCTAssertEqual(cls.vars[0].names[0].value, "test")
+        XCTAssertEqual(cls.vars[1].names[0].value, "xxx")
     }
 
     func testClass02() throws {

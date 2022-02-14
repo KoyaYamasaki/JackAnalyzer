@@ -24,6 +24,7 @@ struct Program {
 struct Class: Node {
     let token: Token
     let name: Identifier
+    var vars: [VarStatement]
     var functions: [Function]
 
     func printSelf() -> String {
@@ -38,7 +39,22 @@ struct Class: Node {
             }
             return ""
         }
-        return token.tokenLiteral + " " + name.value + " " + "{\n" + fnArray.joined(separator: "\n") + "}"
+
+        var varStr = ""
+        for v in vars {
+            varStr += "\(v.printSelf().indent(indent))\n"
+        }
+        return token.tokenLiteral + " " + name.value + " " + "{\n" + varStr + "\n" + fnArray.joined(separator: "\n") + "}"
+    }
+
+    static func makeProvisionalClass() -> Class {
+        let clsToken = Token(tokenType: .CLASS, tokenLiteral: "class")
+
+        let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "Main")
+
+        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
+
+        return Class(token: clsToken, name: clsName, vars: [], functions: [])
     }
 }
 
@@ -61,6 +77,15 @@ struct Function: Node {
             varStr += "\(v.printSelf().indent(indent))\n"
         }
         return token.tokenLiteral + " " + returnType.tokenLiteral + " " + name.value + "()" + " {\n" + varStr + stmtStr + "}"
+    }
+
+    static func makeProvisionalFunction() -> Function {
+        let fnToken = Token(tokenType: .FUNCTION, tokenLiteral: "function")
+        let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
+        let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "main")
+        let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
+
+        return Function(token: fnToken, returnType: returnType, name: fnName, parameters: [], vars: [], statements: [])
     }
 }
 

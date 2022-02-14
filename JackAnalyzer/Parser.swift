@@ -41,7 +41,7 @@ class Parser {
         var function: Function
 
         if currentToken.tokenType != .FUNCTION {
-            function = makeProvisionalFunction()
+            function = Function.makeProvisionalFunction()
         } else {
             let fnToken = currentToken
 
@@ -90,18 +90,9 @@ class Parser {
         return function
     }
 
-    private func makeProvisionalFunction() -> Function {
-        let fnToken = Token(tokenType: .FUNCTION, tokenLiteral: "function")
-        let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
-        let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "main")
-        let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
-
-        return Function(token: fnToken, returnType: returnType, name: fnName, parameters: [], vars: [], statements: [])
-    }
-
     private func parseClass() -> Class {
         if currentToken.tokenType != .CLASS {
-            return makeProvisionalClass()
+            return Class.makeProvisionalClass()
         }
 
         let clsToken = currentToken
@@ -121,19 +112,13 @@ class Parser {
             unexpectedToken(expectedToken: .IDENTIFIER)
         }
 
-        self.advanceAndSetTokens()
-
-        return Class(token: clsToken!, name: clsName, functions: [])
-    }
-
-    private func makeProvisionalClass() -> Class {
-        let clsToken = Token(tokenType: .CLASS, tokenLiteral: "class")
-
-        let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "Main")
-
-        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
-
-        return Class(token: clsToken, name: clsName, functions: [])
+        var varStatements: [VarStatement] = []
+        while nextToken.tokenType == .FIELD || nextToken.tokenType == .STATIC || nextToken.tokenType == .VAR {
+            self.advanceAndSetTokens()
+            varStatements.append(parseVarStatement())
+        }
+        
+        return Class(token: clsToken!, name: clsName, vars: varStatements, functions: [])
     }
 
     private func advanceAndSetTokens() {
