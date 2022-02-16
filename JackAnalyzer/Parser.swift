@@ -11,15 +11,13 @@ import Foundation
 class Parser {
     
     var lexer: Lexer
-    var compilationEngine: CompilationEngine
 
     var program: Program!
     var currentToken: Token!
     var nextToken: Token!
 
-    init(lexer: Lexer, compilationEngine: CompilationEngine) {
+    init(lexer: Lexer) {
         self.lexer = lexer
-        self.compilationEngine = compilationEngine
 
         // Load two tokens and set currentToken & nextToken.
         advanceAndSetTokens()

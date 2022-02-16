@@ -14,7 +14,10 @@ protocol Node {
     func printSelf() -> String
 }
 
-protocol Statement: Node {}
+protocol Statement: Node {
+    var selfTokenType: TokenType { get }
+}
+
 protocol Expression: Node {}
 
 struct Program {
@@ -103,6 +106,10 @@ struct VarStatement: Statement {
 
         return token.tokenLiteral + " " + type.tokenLiteral + " " + namesStr + ";"
     }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
 }
 
 struct LetStatement: Statement {
@@ -112,6 +119,10 @@ struct LetStatement: Statement {
 
     func printSelf() -> String {
         return token.tokenLiteral + " " + name.value + " = " + expression.printSelf() + ";"
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
     }
 }
 
@@ -125,6 +136,10 @@ struct ReturnStatement: Statement {
         } else {
             return token.tokenLiteral + ";"
         }
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
     }
 }
 
@@ -146,6 +161,10 @@ struct DoStatement: Statement {
         } else {
             return token.tokenLiteral + " " + fnName.value + "(\(argStr));"
         }
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
     }
 }
 
@@ -170,6 +189,10 @@ struct IfStatement: Statement {
         } else {
             return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}"
         }
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
     }
 }
 

@@ -10,15 +10,15 @@ import Foundation
 
 class CompilationEngine {
 
-    var fileHandle: FileHandle!
+    var fileHandle: FileHandle
     var compileList: [String] = []
     var insertOffset = 0
-    var indentIndex = 0
+    static var indentIndex = 0
+    let program: Program
+    var outputStr = ""
+    var outputAry: [String] = []
 
-    // This is for test purpose.
-    init() {}
-
-    init(outputFileDir: URL) {
+    init(outputFileDir: URL, program: Program) {
         FileManager
             .default
             .createFile(
@@ -27,128 +27,226 @@ class CompilationEngine {
                 attributes: nil)
 
         print("outputFileDir: \(outputFileDir)")
-        fileHandle = FileHandle(forWritingAtPath: outputFileDir.path)!
+        self.fileHandle = FileHandle(forWritingAtPath: outputFileDir.path)!
+        self.program = program
     }
 
-    func addToCompileTokenList(token: String) {
-        compileList.insert(token.indent(indentIndex), at: compileList.count-insertOffset)
+    func compileProgram() {
+        self.compileClass()
+        self.outPutToXml()
+    }
+
+    private func keywordTag(_ keyword: String) -> String {
+        return "<keyword> \(keyword) </keyword>"
+    }
+
+    private func identifierTag(_ identifier: String) -> String {
+        return "<identifier> \(identifier) </identifier>"
+    }
+
+    private func symbolTag(_ symbol: String) -> String {
+        return "<symbol> \(symbol) </symbol>"
+    }
+
+    private func increaseIndent() {
+        Self.indentIndex += 2
+    }
+
+    private func decreaseIndent() {
+        Self.indentIndex -= 2
     }
 
     func compileClass() {
-        compileList.insert("<class>", at: compileList.count-insertOffset)
-        compileList.insert("</class>", at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+        outputAry.shapeAndAppend("<class>")
+        increaseIndent() // indent == 1
+        outputAry.shapeAndAppend(keywordTag(self.program.cls.token.tokenLiteral))
+        outputAry.shapeAndAppend(identifierTag(self.program.cls.name.value))
+        outputAry.shapeAndAppend(symbolTag("{"))
+        for v in self.program.cls.vars {
+            compileClassVarDec(v)
+        }
+        for subroutine in self.program.cls.functions {
+            compileSubroutine(subroutine)
+        }
+        outputAry.shapeAndAppend(symbolTag("}"))
+        decreaseIndent() // indent == 0
+        outputAry.shapeAndAppend("</class>")
     }
 
-    func compileClassVarDec() {
-        
+    func compileClassVarDec(_ v: VarStatement) {
+        outputAry.shapeAndAppend("<classVarDec>")
+        increaseIndent() // indent == 2
+        outputAry.shapeAndAppend(keywordTag(v.token.tokenLiteral))
+        outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        for (index, vName) in v.names.enumerated() {
+            outputAry.shapeAndAppend(identifierTag(vName.value))
+            if index+1 != v.names.count {
+                outputAry.shapeAndAppend(symbolTag(","))
+            }
+        }
+        outputAry.shapeAndAppend(symbolTag(";"))
+        decreaseIndent() // indent == 1
+        outputAry.shapeAndAppend("</classVarDec>")
     }
 
-    func compileSubroutine() {
-        compileList.insert("<subroutineDec>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</subroutineDec>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileSubroutine(_ subroutine: Function) {
+        outputAry.shapeAndAppend("<subroutineDec>")
+        increaseIndent() // indent == 2
+        outputAry.shapeAndAppend(keywordTag(subroutine.token.tokenLiteral))
+        outputAry.shapeAndAppend(keywordTag(subroutine.returnType.tokenLiteral))
+        outputAry.shapeAndAppend(identifierTag(subroutine.name.value))
+        outputAry.shapeAndAppend(symbolTag("("))
+        outputAry.shapeAndAppend("<parameterList>")
+        for p in subroutine.parameters {
+            compileParameterList(p)
+        }
+        outputAry.shapeAndAppend("</parameterList>")
+        outputAry.shapeAndAppend(symbolTag(")"))
+        compileSubroutineBody(varStmts: subroutine.vars, stmts: subroutine.statements)
+        decreaseIndent() // indent == 1
+        outputAry.shapeAndAppend("</subroutineDec>")
     }
 
-    func compileSubroutineBody() {
-        compileList.insert("<subroutineBody>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</subroutineBody>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileSubroutineBody(varStmts: [VarStatement], stmts: [Statement]) {
+        outputAry.shapeAndAppend("<subroutineBody>")
+        increaseIndent() // indent == 3
+        outputAry.shapeAndAppend(symbolTag("{"))
+        for v in varStmts {
+            self.compileVarDec(v)
+        }
+
+        outputAry.shapeAndAppend("<statements>")
+        increaseIndent() // indent == 4
+        for stmt in stmts {
+            self.compileStatements(stmt)
+        }
+        decreaseIndent() // indent == 3
+        outputAry.shapeAndAppend("</statements>")
+        outputAry.shapeAndAppend(symbolTag("}"))
+        decreaseIndent() // indent == 2
+        outputAry.shapeAndAppend("</subroutineBody>")
     }
 
-    func compileParameterList() {
-        compileList.insert("<parameterList>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</parameterList>".indent(indentIndex), at: compileList.count-insertOffset)
+    func compileParameterList(_ p: Token) {
+        increaseIndent() // indent == 3
+//        outputAry.shapeAndAppend(keywordTag(p.tokenLiteral))
+//        for (index, vName) in p.names.enumerated() {
+//            outputAry.shapeAndAppend(identifierTag(vName.value))
+//            if index+1 != v.names.count {
+//                outputAry.shapeAndAppend(symbolTag(","))
+//            }
+//        }
+        decreaseIndent() // indent == 2
     }
 
-    func compileVarDec() {
-        compileList.insert("<varDec>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</varDec>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileVarDec(_ v: VarStatement) {
+        outputAry.shapeAndAppend("<varDec>")
+        increaseIndent() // indent == 4
+        outputAry.shapeAndAppend(keywordTag(v.token.tokenLiteral))
+        outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        for (index, vName) in v.names.enumerated() {
+            outputAry.shapeAndAppend(identifierTag(vName.value))
+            if index+1 != v.names.count {
+                outputAry.shapeAndAppend(symbolTag(","))
+            }
+        }
+        outputAry.shapeAndAppend(symbolTag(";"))
+        decreaseIndent() // indent == 3
+        outputAry.shapeAndAppend("</varDec>")
     }
 
-    func compileStatements() {
-        compileList.insert("<statements>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</statements>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileStatements(_ stmt: Statement) {
+        switch stmt.selfTokenType {
+        case .LET:
+            self.compileLet(stmt as! LetStatement)
+        case .DO:
+            self.compileDo(stmt as! DoStatement)
+        case .IF:
+            self.compileIf(stmt as! IfStatement)
+        case .WHILE:
+            self.compileWhile(stmt)
+        case .RETURN:
+            self.compileReturn(stmt)
+        default:
+            print("default")
+        }
     }
 
-    func compileDo() {
-        compileList.insert("<doStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</doStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileDo(_ stmt: DoStatement) {
+        outputAry.shapeAndAppend("<doStatement>")
+        increaseIndent() // indent == 5
+        outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
+        if let clsName = stmt.clsName {
+            outputAry.shapeAndAppend(self.identifierTag(clsName.value))
+            outputAry.shapeAndAppend(self.symbolTag("."))
+        }
+        outputAry.shapeAndAppend(self.keywordTag(stmt.fnName.value))
+        outputAry.shapeAndAppend(self.symbolTag("("))
+        outputAry.shapeAndAppend("<expressionList>")
+        for arg in stmt.arguments {
+            compileExpressionList(arg)
+        }
+        outputAry.shapeAndAppend("</expressionList>")
+        outputAry.shapeAndAppend(self.symbolTag(")"))
+        decreaseIndent() // indent == 4
+        outputAry.shapeAndAppend("</doStatement>")
     }
 
-    func compileLet() {
-        compileList.insert("<letStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</letStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileLet(_ stmt: LetStatement) {
+        outputAry.shapeAndAppend("<letStatement>")
+        increaseIndent() // indent == 5
+        outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
+        outputAry.shapeAndAppend(self.identifierTag(stmt.name.value))
+        outputAry.shapeAndAppend(self.symbolTag("="))
+        compileExpression(stmt.expression)
+        decreaseIndent() // indent == 4
+        outputAry.shapeAndAppend("</letStatement>")
     }
 
-    func compileWhile() {
-        compileList.insert("<whileStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</whileStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileWhile(_ stmt: Statement) {
     }
 
-    func compileReturn() {
-        compileList.insert("<returnStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</returnStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileReturn(_ stmt: Statement) {
+
     }
 
-    func compileIf() {
-        compileList.insert("<ifStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</ifStatement>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileIf(_ stmt: IfStatement) {
+        outputAry.shapeAndAppend("<IfStatement>")
+        increaseIndent() // indent == 5
+        outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
+        outputAry.shapeAndAppend(self.symbolTag("("))
+        compileExpression(stmt.condition)
+        outputAry.shapeAndAppend(self.symbolTag(")"))
+        decreaseIndent() // indent == 4
+        outputAry.shapeAndAppend("</IfStatement>")
     }
 
-    func compileExpression() {
-        compileList.insert("<expression>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</expression>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileExpression(_ expression: Expression) {
+        outputAry.shapeAndAppend("<expression>")
+        outputAry.shapeAndAppend("<term>")
+        outputAry.shapeAndAppend("</term>")
+        outputAry.shapeAndAppend("</expression>")
     }
 
     func compileTerm(additionalOffset: Int = 0) {
-        compileList.insert("<term>".indent(indentIndex), at: compileList.count-insertOffset-additionalOffset)
-        compileList.insert("</term>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+
     }
 
-    func compileExpressionList() {
-        compileList.insert("<expressionList>".indent(indentIndex), at: compileList.count-insertOffset)
-        compileList.insert("</expressionList>".indent(indentIndex), at: compileList.count-insertOffset)
-        insertOffset += 1
-        indentIndex += 2
+    func compileExpressionList(_ arg: Expression) {
+
     }
 
     func endCurrentTag() {
-        insertOffset -= 1
-        indentIndex -= 2
+
     }
 
     func endCurrentTagBy(_ additionalOffset: Int = 1) {
-        print("insertOffset: ", insertOffset)
-        print("indentIndex: ", indentIndex)
-        insertOffset -= 1 * additionalOffset
-        indentIndex -= 2 * additionalOffset
+
     }
 
     func outPutToXml() {
-        for token in compileList {
-            self.fileHandle.write(token.data(using: .utf8)!)
+        for tag in outputAry {
+            self.fileHandle.write(tag.data(using: .utf8)!)
             self.fileHandle.write("\n".data(using: .utf8)!)
         }
     }

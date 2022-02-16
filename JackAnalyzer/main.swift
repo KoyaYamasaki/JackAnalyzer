@@ -37,8 +37,10 @@ class Main {
         let outputFile = fileName.replacingOccurrences(of: "jack", with: "xml")
         let outputFileDir = url.deletingLastPathComponent().appendingPathComponent(outputFile)
         let lexer = Lexer(fileURL: url)
-        let compilationEngine = CompilationEngine(outputFileDir: outputFileDir)
-        let parser = Parser(lexer: lexer, compilationEngine: compilationEngine)
+        let parser = Parser(lexer: lexer)
+        let program = parser.startParse()
+        let compilationEngine = CompilationEngine(outputFileDir: outputFileDir, program: program)
+        compilationEngine.compileProgram()
     }
 
     static func compileMultiFiles(_ url: URL) {

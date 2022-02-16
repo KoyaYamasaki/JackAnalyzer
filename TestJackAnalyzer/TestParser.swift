@@ -11,7 +11,6 @@ import XCTest
 
 class TestParser: XCTestCase {
 
-    let compEngine = CompilationEngine()
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -36,7 +35,7 @@ class TestParser: XCTestCase {
         """
 
         let lexer = Lexer(contentStr: testCls)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
         let program = parser.startParse()
         let cls = program.cls
         print("class:\n", cls.printSelf())
@@ -57,6 +56,7 @@ class TestParser: XCTestCase {
         let expectClsStr =
         """
         class Main {
+
             function void main() {
                 \(testCls)
             }
@@ -64,7 +64,7 @@ class TestParser: XCTestCase {
         """
 
         let lexer = Lexer(contentStr: testCls)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
         let program = parser.startParse()
         let cls = program.cls
 
@@ -85,7 +85,7 @@ class TestParser: XCTestCase {
             """
 
         let lexer = Lexer(contentStr: testFn)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
@@ -107,7 +107,7 @@ class TestParser: XCTestCase {
             """
 
         let lexer = Lexer(contentStr: testfn)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
@@ -132,7 +132,7 @@ class TestParser: XCTestCase {
         """
 
         let lexer = Lexer(contentStr: testFn)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions.count, 1)
 
@@ -153,7 +153,7 @@ class TestParser: XCTestCase {
             let testStmt = "let \(testIdent[i]) = \(testExpression[i]);"
 
             let lexer = Lexer(contentStr: testStmt)
-            let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+            let parser = Parser(lexer: lexer)
 
             let program = parser.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)
@@ -183,7 +183,7 @@ class TestParser: XCTestCase {
             testStmt = testExpression[i] != "" ? "return \(testExpression[i]);" : "return;"
 
             let lexer = Lexer(contentStr: testStmt)
-            let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+            let parser = Parser(lexer: lexer)
             
             let program = parser.startParse()
             XCTAssertEqual(program.cls.functions[0].statements.count, 1)
@@ -210,7 +210,7 @@ class TestParser: XCTestCase {
         let testStmt = "do \(fnName)(\(args[0]), \(args[1]));"
 
         let lexer = Lexer(contentStr: testStmt)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
 
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions[0].statements.count, 1)
@@ -242,7 +242,7 @@ class TestParser: XCTestCase {
         """
 
         let lexer = Lexer(contentStr: testIfStmt)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
 
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions[0].statements.count, 1)
@@ -276,7 +276,7 @@ class TestParser: XCTestCase {
         """
 
         let lexer = Lexer(contentStr: testIfStmt)
-        let parser = Parser(lexer: lexer, compilationEngine: compEngine)
+        let parser = Parser(lexer: lexer)
 
         let program = parser.startParse()
         XCTAssertEqual(program.cls.functions[0].statements.count, 1)

@@ -8,7 +8,17 @@
 
 import Foundation
 
+extension Array where Element == String {
+    mutating func shapeAndAppend(_ element: Element) {
+        self.append(element.withIndent)
+    }
+}
+
 extension String {
+    var withIndent: String {
+        self.indent(CompilationEngine.indentIndex)
+    }
+
     func indent(_ index: Int) -> String {
         var strWithIndent = self
         for _ in 0..<index {
