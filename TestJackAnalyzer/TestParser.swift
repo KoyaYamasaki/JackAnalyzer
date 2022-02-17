@@ -27,7 +27,6 @@ class TestParser: XCTestCase {
         class \(testClsName) {
             \(testVars[0])
             \(testVars[1])
-
             function void main() {
                 return 0;
             }
@@ -56,7 +55,6 @@ class TestParser: XCTestCase {
         let expectClsStr =
         """
         class Main {
-
             function void main() {
                 \(testCls)
             }
@@ -73,14 +71,57 @@ class TestParser: XCTestCase {
         XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
         XCTAssertEqual(cls.name.value, "Main")
     }
+    
+    func testClass03() throws {
+        let testFnName = ["main", "more"]
+        let testVarsType = ["SquareGame", "boolean"]
+        let testVarsName = ["game", "b"]
+        let testCls =
+        """
+        class Main {
+            function void \(testFnName[0])() {
+                var \(testVarsType[0]) \(testVarsName[0]);
+                let game = game;
+                do game.run();
+                do game.dispose();
+                return;
+            }
+            function void \(testFnName[1])() {
+                var \(testVarsType[1]) \(testVarsName[1]);
+                if (b) {
+                }
+                else {
+                }
+                return;
+            }
+        }
+        """
+
+        let lexer = Lexer(contentStr: testCls)
+        let parser = Parser(lexer: lexer)
+        let program = parser.startParse()
+        let cls = program.cls
+
+        XCTAssertEqual(cls.token.tokenType, .CLASS)
+        XCTAssertEqual(cls.name.token.tokenType, .IDENTIFIER)
+        XCTAssertEqual(cls.name.value, "Main")
+        for (index, fn) in cls.functions.enumerated() {
+            XCTAssertEqual(fn.name.value, testFnName[index])
+            XCTAssertEqual(fn.vars[0].token.tokenType, .VAR)
+            XCTAssertEqual(fn.vars[0].type.tokenLiteral, testVarsType[index])
+            XCTAssertEqual(fn.vars[0].names[0].value, testVarsName[index])
+        }
+    }
 
     func testFunction01() throws {
         let testFnName = "testFn"
         let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
         let testFn =
             """
-            function void \(testFnName)() {
-                return 0;
+            class Main {
+                function void \(testFnName)() {
+                    return 0;
+                }
             }
             """
 
@@ -91,7 +132,6 @@ class TestParser: XCTestCase {
 
         let fn = program.cls.functions[0]
 
-        XCTAssertEqual(fn.printSelf(), testFn)
         XCTAssertEqual(fn.token.tokenType, .FUNCTION)
         XCTAssertEqual(fn.returnType.tokenType, returnType.tokenType)
         XCTAssertEqual(fn.name.value, testFnName)
@@ -120,14 +160,16 @@ class TestParser: XCTestCase {
     }
 
     func testFunction03() throws {
-        let testVars = ["var int x;", "var boolean isDigit;", "var int y, z;"]
+        let testVars = ["var int x;", "var XClass isDigit;", "var int y, z;"]
         let testFn =
         """
-        function void main() {
-            \(testVars[0])
-            \(testVars[1])
-            \(testVars[2])
-            return x;
+        class Main {
+            function void testFunc() {
+                \(testVars[0])
+                \(testVars[1])
+                \(testVars[2])
+                return x;
+            }
         }
         """
 
@@ -138,10 +180,9 @@ class TestParser: XCTestCase {
 
         let fn = program.cls.functions[0]
 
-        XCTAssertEqual(fn.printSelf(), testFn)
         XCTAssertEqual(fn.token.tokenType, .FUNCTION)
         XCTAssertEqual(fn.returnType.tokenType, .VOID)
-        XCTAssertEqual(fn.name.value, "main")
+        XCTAssertEqual(fn.name.value, "testFunc")
     }
 
     func testLetStatement() throws {
@@ -254,8 +295,6 @@ class TestParser: XCTestCase {
             return
         }
 
-        XCTAssertEqual(ifStmt.printSelf(), testIfStmt)
-
         XCTAssertEqual(ifStmt.token.tokenType, .IF)
         XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
     }
@@ -287,8 +326,6 @@ class TestParser: XCTestCase {
             XCTAssertThrowsError("Statement is not Do")
             return
         }
-
-        XCTAssertEqual(ifStmt.printSelf(), testIfStmt)
 
         XCTAssertEqual(ifStmt.token.tokenType, .IF)
         XCTAssertEqual(ifStmt.condition.printSelf(), testCond)

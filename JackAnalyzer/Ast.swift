@@ -47,7 +47,7 @@ struct Class: Node {
         for v in vars {
             varStr += "\(v.printSelf().indent(indent))\n"
         }
-        return token.tokenLiteral + " " + name.value + " " + "{\n" + varStr + "\n" + fnArray.joined(separator: "\n") + "}"
+        return token.tokenLiteral + " " + name.value + " " + "{\n" + varStr + fnArray.joined(separator: "\n") + "}"
     }
 
     static func makeProvisionalClass() -> Class {
@@ -154,7 +154,7 @@ struct DoStatement: Statement {
         for arg in arguments {
             argStr += "\(arg.printSelf()), "
         }
-        argStr.removeLast(2)
+        if !argStr.isEmpty { argStr.removeLast(2) }
 
         if let cName = clsName {
             return token.tokenLiteral + " " + cName.value + "." + fnName.value + "(\(argStr));"
@@ -185,7 +185,7 @@ struct IfStatement: Statement {
             for alter in alternative {
                 alterStr += "\(alter.printSelf().indent(indent))\n"
             }
-            return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}" + " else " + "{\n" + alterStr + "}"
+            return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}\n".indent(indent) + "else ".indent(indent) + "{\n" + alterStr + "}"
         } else {
             return token.tokenLiteral + " " + "(" + condition.printSelf() + ")" + " " + "{\n" + conseqStr + "}"
         }

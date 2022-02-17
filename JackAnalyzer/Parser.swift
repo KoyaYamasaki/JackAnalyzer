@@ -29,8 +29,7 @@ class Parser {
 
         repeat {
             cls.functions.append(self.parseFunction())
-            advanceAndSetTokens()
-        } while lexer.hasMoreCommands()
+        } while expectPeek(tokenType: .FUNCTION)
 
         return Program(cls: cls)
     }
@@ -38,9 +37,12 @@ class Parser {
     private func parseFunction() -> Function {
         var function: Function
 
-        if currentToken.tokenType != .FUNCTION {
+        if !expectPeek(tokenType: .FUNCTION) {
+            print("makeProvisionalFunction")
             function = Function.makeProvisionalFunction()
         } else {
+            self.advanceAndSetTokens()
+
             let fnToken = currentToken
 
             self.advanceAndSetTokens()
@@ -69,6 +71,7 @@ class Parser {
             }
 
             var varStatements: [VarStatement] = []
+            
             while expectPeek(tokenType: .VAR) {
                 self.advanceAndSetTokens()
                 varStatements.append(parseVarStatement())
@@ -107,7 +110,7 @@ class Parser {
         if expectPeek(tokenType: .LBLACE) {
             self.advanceAndSetTokens()
         } else {
-            unexpectedToken(expectedToken: .IDENTIFIER)
+            unexpectedToken(expectedToken: .LBLACE)
         }
 
         var varStatements: [VarStatement] = []
@@ -147,9 +150,7 @@ class Parser {
     private func parseVarStatement() -> VarStatement {
         let varToken = currentToken
 
-        if TokenType.keywordSets.contains(nextToken.tokenLiteral) {
-            self.advanceAndSetTokens()
-        }
+        self.advanceAndSetTokens()
         let typeToken = currentToken
 
         var namesArray: [Identifier] = []
@@ -159,7 +160,6 @@ class Parser {
             self.advanceAndSetTokens()
         }
 
-        
         return VarStatement(token: varToken!, type: typeToken!, names: namesArray)
     }
 
