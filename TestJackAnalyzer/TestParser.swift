@@ -266,9 +266,9 @@ class TestParser: XCTestCase {
         XCTAssertEqual(doStmt.printSelf(), testStmt)
 
         XCTAssertEqual(doStmt.token.tokenType, .DO)
-        XCTAssertEqual(doStmt.fnName.token.tokenType, .IDENTIFIER)
-        XCTAssertEqual(doStmt.fnName.value, fnName)
-        for (index, arg) in doStmt.arguments.enumerated() {
+        XCTAssertEqual(doStmt.callExpression.fnName.token.tokenType, .IDENTIFIER)
+        XCTAssertEqual(doStmt.callExpression.fnName.value, fnName)
+        for (index, arg) in doStmt.callExpression.arguments.enumerated() {
             XCTAssertEqual(arg.printSelf(), args[index])
         }
     }

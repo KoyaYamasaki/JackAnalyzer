@@ -77,7 +77,11 @@ class CompilationEngine {
         outputAry.shapeAndAppend("<classVarDec>")
         increaseIndent() // indent == 2
         outputAry.shapeAndAppend(keywordTag(v.token.tokenLiteral))
-        outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        if TokenType.keywordSets.contains(v.type.tokenLiteral) {
+            outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        } else {
+            outputAry.shapeAndAppend(identifierTag(v.type.tokenLiteral))
+        }
         for (index, vName) in v.names.enumerated() {
             outputAry.shapeAndAppend(identifierTag(vName.value))
             if index+1 != v.names.count {
@@ -143,7 +147,11 @@ class CompilationEngine {
         outputAry.shapeAndAppend("<varDec>")
         increaseIndent() // indent == 4
         outputAry.shapeAndAppend(keywordTag(v.token.tokenLiteral))
-        outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        if TokenType.keywordSets.contains(v.type.tokenLiteral) {
+            outputAry.shapeAndAppend(keywordTag(v.type.tokenLiteral))
+        } else {
+            outputAry.shapeAndAppend(identifierTag(v.type.tokenLiteral))
+        }
         for (index, vName) in v.names.enumerated() {
             outputAry.shapeAndAppend(identifierTag(vName.value))
             if index+1 != v.names.count {
@@ -166,7 +174,7 @@ class CompilationEngine {
         case .WHILE:
             self.compileWhile(stmt)
         case .RETURN:
-            self.compileReturn(stmt)
+            self.compileReturn(stmt as! ReturnStatement)
         default:
             print("default")
         }
@@ -176,18 +184,20 @@ class CompilationEngine {
         outputAry.shapeAndAppend("<doStatement>")
         increaseIndent() // indent == 5
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
-        if let clsName = stmt.clsName {
+        if let clsName = stmt.callExpression.clsName {
             outputAry.shapeAndAppend(self.identifierTag(clsName.value))
             outputAry.shapeAndAppend(self.symbolTag("."))
         }
-        outputAry.shapeAndAppend(self.keywordTag(stmt.fnName.value))
+        outputAry.shapeAndAppend(self.identifierTag(stmt.callExpression.fnName.value))
         outputAry.shapeAndAppend(self.symbolTag("("))
         outputAry.shapeAndAppend("<expressionList>")
-        for arg in stmt.arguments {
+        for arg in stmt.callExpression
+                .arguments {
             compileExpressionList(arg)
         }
         outputAry.shapeAndAppend("</expressionList>")
         outputAry.shapeAndAppend(self.symbolTag(")"))
+        outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
         outputAry.shapeAndAppend("</doStatement>")
     }
@@ -199,6 +209,7 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.identifierTag(stmt.name.value))
         outputAry.shapeAndAppend(self.symbolTag("="))
         compileExpression(stmt.expression)
+        outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
         outputAry.shapeAndAppend("</letStatement>")
     }
@@ -206,30 +217,69 @@ class CompilationEngine {
     func compileWhile(_ stmt: Statement) {
     }
 
-    func compileReturn(_ stmt: Statement) {
-
+    func compileReturn(_ stmt: ReturnStatement) {
+        outputAry.shapeAndAppend("<returnStatement>")
+        increaseIndent() // indent == 5
+        outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
+        if let exp = stmt.expression {
+            compileExpression(exp)
+        }
+        outputAry.shapeAndAppend(self.symbolTag(";"))
+        decreaseIndent() // indent == 4
+        outputAry.shapeAndAppend("</returnStatement>")
     }
 
     func compileIf(_ stmt: IfStatement) {
-        outputAry.shapeAndAppend("<IfStatement>")
+        outputAry.shapeAndAppend("<ifStatement>")
         increaseIndent() // indent == 5
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         outputAry.shapeAndAppend(self.symbolTag("("))
         compileExpression(stmt.condition)
         outputAry.shapeAndAppend(self.symbolTag(")"))
+        outputAry.shapeAndAppend(self.symbolTag("{"))
+        outputAry.shapeAndAppend("<statements>")
+        for stmt in stmt.consequence {
+            compileStatements(stmt)
+        }
+        outputAry.shapeAndAppend("</statements>")
+        outputAry.shapeAndAppend(self.symbolTag("}"))
+        if let alter = stmt.alternative {
+            outputAry.shapeAndAppend(self.keywordTag("else"))
+            outputAry.shapeAndAppend(self.symbolTag("{"))
+            outputAry.shapeAndAppend("<statements>")
+            for stmt in alter {
+                compileStatements(stmt)
+            }
+            outputAry.shapeAndAppend("</statements>")
+            outputAry.shapeAndAppend(self.symbolTag("}"))
+        }
         decreaseIndent() // indent == 4
-        outputAry.shapeAndAppend("</IfStatement>")
+        outputAry.shapeAndAppend("</ifStatement>")
     }
 
     func compileExpression(_ expression: Expression) {
         outputAry.shapeAndAppend("<expression>")
-        outputAry.shapeAndAppend("<term>")
-        outputAry.shapeAndAppend("</term>")
+        switch expression.selfTokenType {
+        case .BOOLEAN:
+            let boolExp = expression as! Boolean
+            compileTerm(keywordTag(boolExp.printSelf()))
+        case .IDENTIFIER:
+            let identExp = expression as! Identifier
+            compileTerm(identifierTag(identExp.value))
+        default:
+            print("default")
+        }
         outputAry.shapeAndAppend("</expression>")
     }
 
-    func compileTerm(additionalOffset: Int = 0) {
-
+    func compileTerm(_ element: String) {
+        increaseIndent() // indent == 6
+        outputAry.shapeAndAppend("<term>")
+        increaseIndent() // indent == 7
+        outputAry.shapeAndAppend(element)
+        decreaseIndent() // indent == 6
+        outputAry.shapeAndAppend("</term>")
+        decreaseIndent() // indent == 5
     }
 
     func compileExpressionList(_ arg: Expression) {

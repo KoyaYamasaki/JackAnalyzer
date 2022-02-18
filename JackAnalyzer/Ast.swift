@@ -18,7 +18,9 @@ protocol Statement: Node {
     var selfTokenType: TokenType { get }
 }
 
-protocol Expression: Node {}
+protocol Expression: Node {
+    var selfTokenType: TokenType { get }
+}
 
 struct Program {
     var cls: Class
@@ -145,21 +147,19 @@ struct ReturnStatement: Statement {
 
 struct DoStatement: Statement {
     let token: Token
-    var clsName: Identifier?
-    let fnName: Identifier
-    var arguments: [Expression]
+    let callExpression: CallExpression
 
     func printSelf() -> String {
         var argStr = ""
-        for arg in arguments {
+        for arg in callExpression.arguments {
             argStr += "\(arg.printSelf()), "
         }
         if !argStr.isEmpty { argStr.removeLast(2) }
 
-        if let cName = clsName {
-            return token.tokenLiteral + " " + cName.value + "." + fnName.value + "(\(argStr));"
+        if let cName = callExpression.clsName {
+            return token.tokenLiteral + " " + cName.value + "." + callExpression.fnName.value + "(\(argStr));"
         } else {
-            return token.tokenLiteral + " " + fnName.value + "(\(argStr));"
+            return token.tokenLiteral + " " + callExpression.fnName.value + "(\(argStr));"
         }
     }
 
@@ -196,12 +196,31 @@ struct IfStatement: Statement {
     }
 }
 
+struct CallExpression: Expression {
+    let token: Token
+    var clsName: Identifier?
+    let fnName: Identifier
+    var arguments: [Expression]
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+    
+    func printSelf() -> String {
+        return ""
+    }
+}
+
 struct Identifier: Expression {
     let token: Token
     let value: String
 
     func printSelf() -> String {
         return value
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
     }
 }
 
@@ -212,6 +231,10 @@ struct Boolean: Expression {
     func printSelf() -> String {
         return value.description
     }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
 }
 
 struct StringLiteral: Expression {
@@ -221,6 +244,10 @@ struct StringLiteral: Expression {
     func printSelf() -> String {
         return value
     }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
 }
 
 struct IntegerLiteral: Expression {
@@ -229,5 +256,38 @@ struct IntegerLiteral: Expression {
 
     func printSelf() -> String {
         return String(value)
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+}
+
+struct PrefixExpression: Expression {
+    let token: Token
+    let operat: String
+    let right: Expression
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+    
+    func printSelf() -> String {
+        return operat + right.printSelf()
+    }
+}
+
+struct InfixExpression: Expression {
+    let token: Token
+    let left: Expression
+    let operat: String
+    let right: Expression
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+    
+    func printSelf() -> String {
+        return left.printSelf() + operat + right.printSelf()
     }
 }

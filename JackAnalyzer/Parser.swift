@@ -223,6 +223,19 @@ class Parser {
             unexpectedToken(expectedToken: .IDENTIFIER)
         }
 
+        let callExp = parseCallExpression()
+
+        if expectPeek(tokenType: .SEMICOLON) {
+            advanceAndSetTokens()
+        } else {
+            unexpectedToken(expectedToken: .SEMICOLON)
+        }
+
+        return DoStatement(token: doToken!, callExpression: callExp)
+    }
+    
+    private func parseCallExpression() -> CallExpression {
+        let callToken = currentToken
         var clsName: Identifier?
         var fnName: Identifier
 
@@ -242,15 +255,15 @@ class Parser {
             advanceAndSetTokens()
         }
 
-        var doStmt = DoStatement(token: doToken!, clsName: clsName, fnName: fnName, arguments: [])
+        var callExp = CallExpression(token: callToken!, clsName: clsName, fnName: fnName, arguments: [])
         repeat {
             advanceAndSetTokens()
             if let exp = self.parseExpression() {
-                doStmt.arguments.append(exp)
+                callExp.arguments.append(exp)
             }
         } while !expectPeek(tokenType: .SEMICOLON)
 
-        return doStmt
+        return callExp
     }
 
     private func parseIfStatement() -> Statement {
@@ -314,7 +327,11 @@ class Parser {
         case .INT_CONST:
             expression = parseIntegerLiteral()
         case .IDENTIFIER:
-            expression = parseIdentifier()
+            if expectPeek(tokenType: .DOT) || expectPeek(tokenType: .LBLACE) {
+                expression = parseCallExpression()
+            } else {
+                expression = parseIdentifier()
+            }
         default:
             return nil
         }
