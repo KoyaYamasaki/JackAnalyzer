@@ -65,6 +65,8 @@ enum TokenType: String {
     case NONE = ""
 
     case IDENTIFIER = "IDENTIFIER"
+    case CALL_EXPRESSION = "CALL_EXPRESSION"
+    case INFIX_EXPRESSION = "INFIX_EXPRESSION"
     case INT_CONST = "INT_CONST"
     case STRING_CONST = "STRING_CONST"
 

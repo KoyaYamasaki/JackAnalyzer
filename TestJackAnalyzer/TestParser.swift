@@ -300,6 +300,37 @@ class TestParser: XCTestCase {
     }
 
     func testIfStatement02() throws {
+        let testCond = "false"
+        let testConseq = ["let a = 10;", "return a;"]
+        let testIfStmt =
+        """
+        if (\(testCond)) {
+            \(testConseq[0])
+            \(testConseq[1])
+        }
+        """
+
+        let lexer = Lexer(contentStr: testIfStmt)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+
+        guard let ifStmt = stmt as? IfStatement else {
+            XCTAssertThrowsError("Statement is not Do")
+            return
+        }
+
+        XCTAssertEqual(ifStmt.token.tokenType, .IF)
+        XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
+        for (index, conseq) in ifStmt.consequence.enumerated() {
+            XCTAssertEqual(conseq.printSelf(), testConseq[index])
+        }
+    }
+
+    func testIfStatement03() throws {
         let testCond = "true"
         let testConseq = ["let a = 10;", "return a;"]
         let testAlter = ["let b = true;", "return b;"]
@@ -336,4 +367,111 @@ class TestParser: XCTestCase {
             XCTAssertEqual(alter.printSelf(), testAlter[index])
         }
      }
+
+    func testIfStatement04() throws {
+        let testCond = "true"
+        let testConseqType = [TokenType.IF, TokenType.WHILE]
+        let testConseq = [
+            """
+            \(testConseqType[0].rawValue) (true) {
+                return 1;
+            }
+            """,
+            """
+            \(testConseqType[1].rawValue) (true) {
+                return 1;
+            }
+            """]
+
+        let testAlter = [
+            """
+            \(testConseqType[0].rawValue) (true) {
+                return 0;
+            }
+            """,
+            """
+            \(testConseqType[1].rawValue) (true) {
+                return 0;
+            }
+            """]
+
+        let testIfStmt =
+        """
+        if (\(testCond)) {
+            \(testConseq[0])
+            \(testConseq[1])
+         } else {
+            \(testAlter[0])
+            \(testAlter[1])
+        }
+        """
+//
+
+        let lexer = Lexer(contentStr: testIfStmt)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        print(stmt.printSelf())
+        guard let ifStmt = stmt as? IfStatement else {
+            XCTAssertThrowsError("Statement is not Do")
+            return
+        }
+
+        XCTAssertEqual(ifStmt.token.tokenType, .IF)
+        XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
+        for (index, conseq) in ifStmt.consequence.enumerated() {
+            XCTAssertEqual(conseq.selfTokenType, testConseqType[index])
+            XCTAssertEqual(conseq.printSelf(), testConseq[index])
+        }
+        for (index, alter) in ifStmt.alternative!.enumerated() {
+            XCTAssertEqual(alter.selfTokenType, testConseqType[index])
+            XCTAssertEqual(alter.printSelf(), testAlter[index])
+        }
+     }
+
+    func testWhileStatement01() throws {
+        let testCond = "true"
+        let testConseqType = [TokenType.IF, TokenType.WHILE]
+        let testConseq = [
+            """
+            \(testConseqType[0].rawValue) (true) {
+                return 1;
+            }
+            """,
+            """
+            \(testConseqType[1].rawValue) (true) {
+                return 1;
+            }
+            """]
+
+        let testIfStmt =
+        """
+        while (\(testCond)) {
+            \(testConseq[0])
+            \(testConseq[1])
+        }
+        """
+
+        let lexer = Lexer(contentStr: testIfStmt)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        guard let whileStmt = stmt as? WhileStatement else {
+            XCTAssertThrowsError("Statement is not while")
+            return
+        }
+
+        XCTAssertEqual(whileStmt.token.tokenType, TokenType.WHILE)
+        XCTAssertEqual(whileStmt.condition.printSelf(), testCond)
+        for (index, conseq) in whileStmt.consequence.enumerated() {
+            XCTAssertEqual(conseq.selfTokenType, testConseqType[index])
+            XCTAssertEqual(conseq.printSelf(), testConseq[index])
+        }
+    }
 }

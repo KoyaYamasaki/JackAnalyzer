@@ -48,6 +48,14 @@ class CompilationEngine {
         return "<symbol> \(symbol) </symbol>"
     }
 
+    private func stringLiteralTag(_ str: String) -> String {
+        return "<stringConstant> \(str) </stringConstant>"
+    }
+
+    private func integerLiteralTag(_ integer: Int) -> String {
+        return "<integerConstant> \(integer) </integerConstant>"
+    }
+
     private func increaseIndent() {
         Self.indentIndex += 2
     }
@@ -172,7 +180,7 @@ class CompilationEngine {
         case .IF:
             self.compileIf(stmt as! IfStatement)
         case .WHILE:
-            self.compileWhile(stmt)
+            self.compileWhile(stmt as! WhileStatement)
         case .RETURN:
             self.compileReturn(stmt as! ReturnStatement)
         default:
@@ -190,12 +198,7 @@ class CompilationEngine {
         }
         outputAry.shapeAndAppend(self.identifierTag(stmt.callExpression.fnName.value))
         outputAry.shapeAndAppend(self.symbolTag("("))
-        outputAry.shapeAndAppend("<expressionList>")
-        for arg in stmt.callExpression
-                .arguments {
-            compileExpressionList(arg)
-        }
-        outputAry.shapeAndAppend("</expressionList>")
+        compileExpressionList(stmt.callExpression.arguments)
         outputAry.shapeAndAppend(self.symbolTag(")"))
         outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
@@ -206,15 +209,37 @@ class CompilationEngine {
         outputAry.shapeAndAppend("<letStatement>")
         increaseIndent() // indent == 5
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
-        outputAry.shapeAndAppend(self.identifierTag(stmt.name.value))
+        compileNameIdentifier(stmt.name)
         outputAry.shapeAndAppend(self.symbolTag("="))
+        outputAry.shapeAndAppend("<expression>")
         compileExpression(stmt.expression)
+        outputAry.shapeAndAppend("</expression>")
         outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
         outputAry.shapeAndAppend("</letStatement>")
     }
 
-    func compileWhile(_ stmt: Statement) {
+    func compileWhile(_ stmt: WhileStatement) {
+        outputAry.shapeAndAppend("<whileStatement>")
+        increaseIndent() // indent == 5
+        outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
+        outputAry.shapeAndAppend(self.symbolTag("("))
+        outputAry.shapeAndAppend("<expression>")
+        compileExpression(stmt.condition)
+        outputAry.shapeAndAppend("</expression>")
+        outputAry.shapeAndAppend(self.symbolTag(")"))
+        outputAry.shapeAndAppend(self.symbolTag("{"))
+        outputAry.shapeAndAppend("<statements>")
+        increaseIndent() // indent == 6
+        for conseq in stmt.consequence {
+            print(conseq.printSelf())
+            compileStatements(conseq)
+        }
+        decreaseIndent() // indent == 5
+        outputAry.shapeAndAppend("</statements>")
+        outputAry.shapeAndAppend(self.symbolTag("}"))
+        decreaseIndent() // indent == 4
+        outputAry.shapeAndAppend("</whileStatement>")
     }
 
     func compileReturn(_ stmt: ReturnStatement) {
@@ -222,7 +247,9 @@ class CompilationEngine {
         increaseIndent() // indent == 5
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         if let exp = stmt.expression {
+            outputAry.shapeAndAppend("<expression>")
             compileExpression(exp)
+            outputAry.shapeAndAppend("</expression>")
         }
         outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
@@ -234,7 +261,9 @@ class CompilationEngine {
         increaseIndent() // indent == 5
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         outputAry.shapeAndAppend(self.symbolTag("("))
+        outputAry.shapeAndAppend("<expression>")
         compileExpression(stmt.condition)
+        outputAry.shapeAndAppend("</expression>")
         outputAry.shapeAndAppend(self.symbolTag(")"))
         outputAry.shapeAndAppend(self.symbolTag("{"))
         outputAry.shapeAndAppend("<statements>")
@@ -258,18 +287,28 @@ class CompilationEngine {
     }
 
     func compileExpression(_ expression: Expression) {
-        outputAry.shapeAndAppend("<expression>")
         switch expression.selfTokenType {
         case .BOOLEAN:
             let boolExp = expression as! Boolean
             compileTerm(keywordTag(boolExp.printSelf()))
         case .IDENTIFIER:
             let identExp = expression as! Identifier
-            compileTerm(identifierTag(identExp.value))
+            compileIdentifierExpression(identExp)
+        case .CALL_EXPRESSION:
+            let callExp = expression as! CallExpression
+            compileCallExpression(callExp)
+        case .STRING_CONST:
+            let strExp = expression as! StringLiteral
+            compileTerm(stringLiteralTag(strExp.value))
+        case .INT_CONST:
+            let intExp = expression as! IntegerLiteral
+            compileTerm(integerLiteralTag(intExp.value))
+        case .INFIX_EXPRESSION:
+            let infixExp = expression as! InfixExpression
+            compileInfixExpression(infixExp)
         default:
             print("default")
         }
-        outputAry.shapeAndAppend("</expression>")
     }
 
     func compileTerm(_ element: String) {
@@ -282,16 +321,65 @@ class CompilationEngine {
         decreaseIndent() // indent == 5
     }
 
-    func compileExpressionList(_ arg: Expression) {
-
+    func compileIdentifierExpression(_ ident: Identifier) {
+        increaseIndent() // indent == 6
+        outputAry.shapeAndAppend("<term>")
+        increaseIndent() // indent == 7
+        compileNameIdentifier(ident)
+        decreaseIndent() // indent == 6
+        outputAry.shapeAndAppend("</term>")
+        decreaseIndent() // indent == 5
     }
 
-    func endCurrentTag() {
-
+    func compileNameIdentifier(_ identifier: Identifier) {
+        outputAry.shapeAndAppend(self.identifierTag(identifier.value))
+        if let arrayElement = identifier.arrayElement {
+            outputAry.shapeAndAppend(self.symbolTag("["))
+            outputAry.shapeAndAppend("<expression>")
+            compileTerm(self.identifierTag(arrayElement.printSelf()))
+            outputAry.shapeAndAppend("</expression>")
+            outputAry.shapeAndAppend(self.symbolTag("]"))
+        }
     }
 
-    func endCurrentTagBy(_ additionalOffset: Int = 1) {
+    func compileCallExpression(_ callExp: CallExpression) {
+        increaseIndent() // indent == 6
+        outputAry.shapeAndAppend("<term>")
+        increaseIndent() // indent == 7
+        if let clsName = callExp.clsName {
+            outputAry.shapeAndAppend(self.identifierTag(clsName.value))
+            outputAry.shapeAndAppend(self.symbolTag("."))
+        }
+        outputAry.shapeAndAppend(self.identifierTag(callExp.fnName.value))
+        outputAry.shapeAndAppend(self.symbolTag("("))
+        compileExpressionList(callExp.arguments)
+        outputAry.shapeAndAppend(self.symbolTag(")"))
+        decreaseIndent() // indent == 6
+        outputAry.shapeAndAppend("</term>")
+        decreaseIndent() // indent == 5
+    }
 
+    func compileInfixExpression(_ infixExp: InfixExpression) {
+        compileExpression(infixExp.left)
+        increaseIndent() // indent == 7
+        outputAry.shapeAndAppend(self.symbolTag(infixExp.operat.tokenLiteral))
+        decreaseIndent() // indent == 6
+        compileExpression(infixExp.right)
+    }
+
+    func compileExpressionList(_ args: [Expression]) {
+        outputAry.shapeAndAppend("<expressionList>")
+        for (index, arg) in args.enumerated() {
+            increaseIndent() // indent == 6
+            outputAry.shapeAndAppend("<expression>")
+            compileExpression(arg)
+            outputAry.shapeAndAppend("</expression>")
+            decreaseIndent() // indent == 5
+            if index + 1 != args.count {
+                outputAry.shapeAndAppend(self.symbolTag(","))
+            }
+        }
+        outputAry.shapeAndAppend("</expressionList>")
     }
 
     func outPutToXml() {

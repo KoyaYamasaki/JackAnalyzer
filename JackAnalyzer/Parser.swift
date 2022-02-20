@@ -29,7 +29,7 @@ class Parser {
 
         repeat {
             cls.functions.append(self.parseFunction())
-        } while expectPeek(tokenType: .FUNCTION)
+        } while expectPeek(tokenType: .FUNCTION) || expectPeek(tokenType: .METHOD) || expectPeek(tokenType: .CONSTRUCTOR)
 
         return Program(cls: cls)
     }
@@ -37,7 +37,7 @@ class Parser {
     private func parseFunction() -> Function {
         var function: Function
 
-        if !expectPeek(tokenType: .FUNCTION) {
+        if !expectPeek(tokenType: .FUNCTION) && !expectPeek(tokenType: .METHOD) && !expectPeek(tokenType: .CONSTRUCTOR) {
             print("makeProvisionalFunction")
             function = Function.makeProvisionalFunction()
         } else {
@@ -56,7 +56,7 @@ class Parser {
             }
 
             let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: currentToken.tokenLiteral)
-            let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
+            let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral, arrayElement: nil)
 
             if expectPeek(tokenType: .LPARENTHESIS) {
                 self.advanceAndSetTokens()
@@ -84,9 +84,10 @@ class Parser {
         repeat {
             if let stmt = self.parseStatements() {
                 function.statements.append(stmt)
+            } else {
+                advanceAndSetTokens()
             }
-            advanceAndSetTokens()
-        } while !expectPeek(tokenType: .FUNCTION) && lexer.hasMoreCommands()
+        } while !expectPeek(tokenType: .FUNCTION) && !expectPeek(tokenType: .METHOD) && !expectPeek(tokenType: .METHOD) && lexer.hasMoreCommands()
 
         return function
     }
@@ -105,7 +106,7 @@ class Parser {
         }
 
         let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: currentToken.tokenLiteral)
-        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
+        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral, arrayElement: nil)
 
         if expectPeek(tokenType: .LBLACE) {
             self.advanceAndSetTokens()
@@ -132,6 +133,7 @@ class Parser {
     }
 
     private func parseStatements() -> Statement? {
+//        print(currentToken.tokenType)
         switch currentToken.tokenType {
         case .LET:
             return parseLetStatement()
@@ -141,6 +143,8 @@ class Parser {
             return parseDoStatement()
         case .IF:
             return parseIfStatement()
+        case .WHILE:
+            return parseWhileStatement()
         default:
             print("currentTokenType : \(currentToken.tokenType)")
             return nil
@@ -156,7 +160,7 @@ class Parser {
         var namesArray: [Identifier] = []
         while expectPeek(tokenType: .IDENTIFIER) {
             self.advanceAndSetTokens()
-            namesArray.append(Identifier(token: currentToken!, value: currentToken.tokenLiteral))
+            namesArray.append(Identifier(token: currentToken!, value: currentToken.tokenLiteral, arrayElement: nil))
             self.advanceAndSetTokens()
         }
 
@@ -172,12 +176,10 @@ class Parser {
             unexpectedToken(expectedToken: .IDENTIFIER)
         }
 
-        let letIdent = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+        let letIdent = parseExpression() as? Identifier
 
         if expectPeek(tokenType: .EQUAL) {
             advanceAndSetTokens()
-        } else {
-            unexpectedToken(expectedToken: .EQUAL)
         }
 
         advanceAndSetTokens()
@@ -190,7 +192,7 @@ class Parser {
             unexpectedToken(expectedToken: .SEMICOLON)
         }
 
-        return LetStatement(token: letToken!, name: letIdent, expression: letExpression!)
+        return LetStatement(token: letToken!, name: letIdent!, expression: letExpression!)
     }
 
     private func parseReturnStatement() -> Statement {
@@ -235,12 +237,12 @@ class Parser {
     }
     
     private func parseCallExpression() -> CallExpression {
-        let callToken = currentToken
+        let callToken = Token(tokenType: .CALL_EXPRESSION, tokenLiteral: TokenType.CALL_EXPRESSION.rawValue)
         var clsName: Identifier?
         var fnName: Identifier
 
         if expectPeek(tokenType: .DOT) {
-            clsName = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+            clsName = Identifier(token: currentToken, value: currentToken.tokenLiteral, arrayElement: nil)
             advanceAndSetTokens()
             if expectPeek(tokenType: .IDENTIFIER) {
                 advanceAndSetTokens()
@@ -249,13 +251,13 @@ class Parser {
             }
         }
 
-        fnName = Identifier(token: currentToken, value: currentToken.tokenLiteral)
+        fnName = Identifier(token: currentToken, value: currentToken.tokenLiteral, arrayElement: nil)
 
         if expectPeek(tokenType: .LPARENTHESIS) {
             advanceAndSetTokens()
         }
 
-        var callExp = CallExpression(token: callToken!, clsName: clsName, fnName: fnName, arguments: [])
+        var callExp = CallExpression(token: callToken, clsName: clsName, fnName: fnName, arguments: [])
         repeat {
             advanceAndSetTokens()
             if let exp = self.parseExpression() {
@@ -287,6 +289,8 @@ class Parser {
             self.advanceAndSetTokens()
         }
 
+        self.advanceAndSetTokens()
+
         while !expectPeek(tokenType: .RBLACE) && lexer.hasMoreCommands() {
             if let stmt = self.parseStatements() {
                 ifStmt.consequence.append(stmt)
@@ -316,9 +320,41 @@ class Parser {
         return ifStmt
     }
 
+    private func parseWhileStatement() -> Statement {
+        let whileToken = currentToken
+
+        if expectPeek(tokenType: .LPARENTHESIS) {
+            self.advanceAndSetTokens()
+        }
+
+        advanceAndSetTokens()
+
+        let condition = parseExpression()
+
+        var whileStmt = WhileStatement(token: whileToken!, condition: condition!, consequence: [])
+
+        if expectPeek(tokenType: .RPARENTHESIS) {
+            self.advanceAndSetTokens()
+        }
+
+        if expectPeek(tokenType: .LBLACE) {
+            self.advanceAndSetTokens()
+        }
+
+        while !expectPeek(tokenType: .RBLACE) && lexer.hasMoreCommands() {
+            if let stmt = self.parseStatements() {
+                whileStmt.consequence.append(stmt)
+            } else {
+                self.advanceAndSetTokens()
+            }
+        }
+
+        self.advanceAndSetTokens()
+        return whileStmt
+    }
+
     private func parseExpression() -> Expression? {
         var expression: Expression
-        print("tokenType : \(currentToken.tokenType)")
         switch currentToken.tokenType {
         case .TRUE, .FALSE:
             expression = parseBoolean()
@@ -336,7 +372,28 @@ class Parser {
             return nil
         }
 
+        if expectPeek(tokenType: .PLUS) || expectPeek(tokenType: .MINUS) || expectPeek(tokenType: .ASTERISK) || expectPeek(tokenType: .SLASH) || expectPeek(tokenType: .LANGLE) || expectPeek(tokenType: .RANGLE) {
+            expression = parseInfixExpression(leftExp: expression)
+        }
         return expression
+    }
+
+    private func parseArrayElement() -> Expression {
+        advanceAndSetTokens() // [
+        advanceAndSetTokens() // arrayElement
+        let arrayElement = parseExpression()
+        advanceAndSetTokens() // ]
+        return arrayElement!
+    }
+
+    private func parseInfixExpression(leftExp: Expression) -> Expression {
+        let token = Token(tokenType: .INFIX_EXPRESSION, tokenLiteral: TokenType.INFIX_EXPRESSION.rawValue)
+        let left = leftExp
+        advanceAndSetTokens()
+        let operat = currentToken
+        advanceAndSetTokens()
+        let rightExp = parseExpression()
+        return InfixExpression(token: token, left: left, operat: operat!, right: rightExp!)
     }
 
     private func parseBoolean() -> Expression {
@@ -344,7 +401,12 @@ class Parser {
     }
 
     private func parseIdentifier() -> Expression {
-        return Identifier(token: currentToken, value: currentToken.tokenLiteral)
+        let token = currentToken!
+        var arrayElement: Expression?
+        if expectPeek(tokenType: .LBLACKET) {
+            arrayElement = parseArrayElement()
+        }
+        return Identifier(token: token, value: token.tokenLiteral, arrayElement: arrayElement)
     }
 
     private func parseStringLiteral() -> Expression {
@@ -352,7 +414,6 @@ class Parser {
     }
 
     private func parseIntegerLiteral() -> Expression {
-        print("tokenLiteral", currentToken.tokenLiteral)
         return IntegerLiteral(token: currentToken, value: Int(currentToken.tokenLiteral)!)
     }
 

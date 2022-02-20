@@ -57,7 +57,7 @@ struct Class: Node {
 
         let clsNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "Main")
 
-        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral)
+        let clsName = Identifier(token: clsNameToken, value: clsNameToken.tokenLiteral, arrayElement: nil)
 
         return Class(token: clsToken, name: clsName, vars: [], functions: [])
     }
@@ -88,7 +88,7 @@ struct Function: Node {
         let fnToken = Token(tokenType: .FUNCTION, tokenLiteral: "function")
         let returnType = Token(tokenType: .VOID, tokenLiteral: "void")
         let fnNameToken = Token(tokenType: .IDENTIFIER, tokenLiteral: "main")
-        let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral)
+        let fnName = Identifier(token: fnNameToken, value: fnNameToken.tokenLiteral, arrayElement: nil)
 
         return Function(token: fnToken, returnType: returnType, name: fnName, parameters: [], vars: [], statements: [])
     }
@@ -196,6 +196,25 @@ struct IfStatement: Statement {
     }
 }
 
+struct WhileStatement: Statement {
+    let token: Token
+    let condition: Expression
+    var consequence: [Statement]
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+    
+    func printSelf() -> String {
+        var conseqStr = ""
+        for conseq in consequence {
+            conseqStr += "\(conseq.printSelf().indent(indent))\n"
+        }
+
+        return token.tokenLiteral + " (" + condition.printSelf() + ") " + "{\n" + conseqStr + "}"
+    }
+}
+
 struct CallExpression: Expression {
     let token: Token
     var clsName: Identifier?
@@ -214,6 +233,7 @@ struct CallExpression: Expression {
 struct Identifier: Expression {
     let token: Token
     let value: String
+    let arrayElement: Expression?
 
     func printSelf() -> String {
         return value
@@ -221,6 +241,14 @@ struct Identifier: Expression {
 
     var selfTokenType: TokenType {
         return token.tokenType
+    }
+
+    var getArrayElement: Identifier? {
+        if let arrayElement = arrayElement {
+            return arrayElement as? Identifier
+        } else {
+            return nil
+        }
     }
 }
 
@@ -265,7 +293,7 @@ struct IntegerLiteral: Expression {
 
 struct PrefixExpression: Expression {
     let token: Token
-    let operat: String
+    let operat: Token
     let right: Expression
 
     var selfTokenType: TokenType {
@@ -273,14 +301,14 @@ struct PrefixExpression: Expression {
     }
     
     func printSelf() -> String {
-        return operat + right.printSelf()
+        return operat.tokenLiteral + right.printSelf()
     }
 }
 
 struct InfixExpression: Expression {
     let token: Token
     let left: Expression
-    let operat: String
+    let operat: Token
     let right: Expression
 
     var selfTokenType: TokenType {
@@ -288,6 +316,6 @@ struct InfixExpression: Expression {
     }
     
     func printSelf() -> String {
-        return left.printSelf() + operat + right.printSelf()
+        return left.printSelf() + operat.tokenLiteral + right.printSelf()
     }
 }

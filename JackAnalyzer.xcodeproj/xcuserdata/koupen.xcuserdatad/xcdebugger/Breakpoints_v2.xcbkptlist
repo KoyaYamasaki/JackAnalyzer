@@ -20,5 +20,53 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A0DCE6B7-A812-47AB-940C-AF811E4DEF99"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TestJackAnalyzer/TestParser.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "371"
+            endingLineNumber = "371"
+            landmarkName = "testIfStatement04()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "A0DCE6B7-A812-47AB-940C-AF811E4DEF99 - d5fe96d88c2fa7d5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestJackAnalyzer.TestParser.testIfStatement03() throws -&gt; ()"
+                  moduleName = "TestJackAnalyzer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/koupen/work/nand2tetris/JackAnalyzer/TestJackAnalyzer/TestParser.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "341"
+                  endingLineNumber = "341"
+                  offsetFromSymbolStart = "200">
+               </Location>
+               <Location
+                  uuid = "A0DCE6B7-A812-47AB-940C-AF811E4DEF99 - d5fe96d88c2fa7d5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestJackAnalyzer.TestParser.testIfStatement03() throws -&gt; ()"
+                  moduleName = "TestJackAnalyzer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/koupen/work/nand2tetris/JackAnalyzer/TestJackAnalyzer/TestParser.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "341"
+                  endingLineNumber = "341"
+                  offsetFromSymbolStart = "216">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
