@@ -287,9 +287,10 @@ class Parser {
 
         if expectPeek(tokenType: .LBLACE) {
             self.advanceAndSetTokens()
+            if !expectPeek(tokenType: .RBLACE) {
+                self.advanceAndSetTokens()
+            }
         }
-
-        self.advanceAndSetTokens()
 
         while !expectPeek(tokenType: .RBLACE) && lexer.hasMoreCommands() {
             if let stmt = self.parseStatements() {

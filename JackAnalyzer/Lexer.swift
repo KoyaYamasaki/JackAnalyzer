@@ -59,7 +59,7 @@ class Lexer {
         if TokenType.symbolSets.contains(currentChar) {
             token = Token(tokenType: TokenType(rawValue: String(currentChar))!, tokenLiteral: String(currentChar))
         } else if currentChar == "\"" {
-            return Token(tokenType: .STRING_CONST, tokenLiteral: self.readString())
+            return Token(tokenType: .STRING_CONST, tokenLiteral: self.readString().replacingOccurrences(of: "\"", with: ""))
         } else if currentChar.isLetter {
             let str = self.readIdentifier()
             if TokenType.keywordSets.contains(str) {

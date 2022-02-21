@@ -47,7 +47,7 @@ class TestLexer: XCTestCase {
             Token(tokenType: .DOT, tokenLiteral: "."),
             Token(tokenType: .IDENTIFIER, tokenLiteral: "printString"),
             Token(tokenType: .LPARENTHESIS, tokenLiteral: "("),
-            Token(tokenType: .STRING_CONST, tokenLiteral: "\"Hello World\""),
+            Token(tokenType: .STRING_CONST, tokenLiteral: "Hello World"),
             Token(tokenType: .RPARENTHESIS, tokenLiteral: ")"),
             Token(tokenType: .SEMICOLON, tokenLiteral: ";"),
             Token(tokenType: .RBLACE, tokenLiteral: "}"),

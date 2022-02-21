@@ -16,6 +16,20 @@ struct Token {
         self.tokenType = tokenType
         self.tokenLiteral = tokenLiteral
     }
+
+    var getEscapeCharacters: String {
+        if tokenType == .LANGLE {
+            return "&lt;"
+        }
+        if tokenType == .RANGLE {
+            return "&gt;"
+        }
+        if tokenType == .AMPERSAND {
+            return "&amp;"
+        }
+
+        return tokenLiteral
+    }
 }
 
 enum TokenType: String {

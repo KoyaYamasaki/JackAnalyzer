@@ -277,8 +277,12 @@ class TestParser: XCTestCase {
         let testCond = "false"
         let testIfStmt =
         """
-        if (\(testCond)) {
-        } else {
+        class Main {
+            function void main() {
+                if (\(testCond)) {
+                } else {
+                }
+            }
         }
         """
 
@@ -291,12 +295,13 @@ class TestParser: XCTestCase {
         let stmt = program.cls.functions[0].statements[0]
 
         guard let ifStmt = stmt as? IfStatement else {
-            XCTAssertThrowsError("Statement is not Do")
+            XCTAssertThrowsError("Statement is not IF")
             return
         }
 
         XCTAssertEqual(ifStmt.token.tokenType, .IF)
         XCTAssertEqual(ifStmt.condition.printSelf(), testCond)
+        XCTAssertEqual(ifStmt.alternative?.count, 0)
     }
 
     func testIfStatement02() throws {

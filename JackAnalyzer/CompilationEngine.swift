@@ -18,6 +18,12 @@ class CompilationEngine {
     var outputStr = ""
     var outputAry: [String] = []
 
+    // Use for only test purposes.
+    init(program: Program) {
+        self.program = program
+        self.fileHandle = FileHandle(forWritingAtPath: "/dev/null")!
+    }
+
     init(outputFileDir: URL, program: Program) {
         FileManager
             .default
@@ -33,7 +39,6 @@ class CompilationEngine {
 
     func compileProgram() {
         self.compileClass()
-        self.outPutToXml()
     }
 
     private func keywordTag(_ keyword: String) -> String {
@@ -362,7 +367,7 @@ class CompilationEngine {
     func compileInfixExpression(_ infixExp: InfixExpression) {
         compileExpression(infixExp.left)
         increaseIndent() // indent == 7
-        outputAry.shapeAndAppend(self.symbolTag(infixExp.operat.tokenLiteral))
+        outputAry.shapeAndAppend(self.symbolTag(infixExp.operat.getEscapeCharacters))
         decreaseIndent() // indent == 6
         compileExpression(infixExp.right)
     }

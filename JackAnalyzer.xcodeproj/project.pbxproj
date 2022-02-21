@@ -22,7 +22,14 @@
 		461A388827AED2F20076967D /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461A385127AED1E80076967D /* Token.swift */; };
 		4634C1BF27B3A45100D0D317 /* TestParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4634C1BE27B3A45100D0D317 /* TestParser.swift */; };
 		4634C1C027B3A5DD00D0D317 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464AB12E27B252D100837D9C /* Parser.swift */; };
+		46368F1127C32FA700FC970A /* ArrayTest.xml in Resources */ = {isa = PBXBuildFile; fileRef = 46368F0F27C32FA700FC970A /* ArrayTest.xml */; };
+		46368F1227C32FA700FC970A /* ArrayTest.jack in Resources */ = {isa = PBXBuildFile; fileRef = 46368F1027C32FA700FC970A /* ArrayTest.jack */; };
+		46368F1527C3703800FC970A /* ExpressionLessSquare_Square.jack in Resources */ = {isa = PBXBuildFile; fileRef = 46368F1327C3703800FC970A /* ExpressionLessSquare_Square.jack */; };
+		46368F1627C3703800FC970A /* ExpressionLessSquare_Square.xml in Resources */ = {isa = PBXBuildFile; fileRef = 46368F1427C3703800FC970A /* ExpressionLessSquare_Square.xml */; };
 		464AB12F27B252D100837D9C /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464AB12E27B252D100837D9C /* Parser.swift */; };
+		4657EDAB27C282E1004A062C /* TestCompilationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4657EDAA27C282E1004A062C /* TestCompilationEngine.swift */; };
+		4657EDBD27C291EE004A062C /* ExpressionLessSquare_Main.jack in Resources */ = {isa = PBXBuildFile; fileRef = 4657EDB627C28EF8004A062C /* ExpressionLessSquare_Main.jack */; };
+		4657EDC327C2970F004A062C /* ExpressionLessSquare_Main.xml in Resources */ = {isa = PBXBuildFile; fileRef = 4657EDC227C2970F004A062C /* ExpressionLessSquare_Main.xml */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,12 +45,21 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		1A12D5FC2785BE800082018F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = usr/share/man/man1;
+			dstSubfolderSpec = 16;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4657EDBA27C28FDE004A062C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -60,7 +76,14 @@
 		461A386B27AED2790076967D /* TestLexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLexer.swift; sourceTree = "<group>"; };
 		461A388227AED2C30076967D /* TestBridgingTargetApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBridgingTargetApp.swift; sourceTree = "<group>"; };
 		4634C1BE27B3A45100D0D317 /* TestParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestParser.swift; sourceTree = "<group>"; };
+		46368F0F27C32FA700FC970A /* ArrayTest.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ArrayTest.xml; sourceTree = "<group>"; };
+		46368F1027C32FA700FC970A /* ArrayTest.jack */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ArrayTest.jack; sourceTree = "<group>"; };
+		46368F1327C3703800FC970A /* ExpressionLessSquare_Square.jack */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ExpressionLessSquare_Square.jack; sourceTree = "<group>"; };
+		46368F1427C3703800FC970A /* ExpressionLessSquare_Square.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ExpressionLessSquare_Square.xml; sourceTree = "<group>"; };
 		464AB12E27B252D100837D9C /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		4657EDAA27C282E1004A062C /* TestCompilationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCompilationEngine.swift; sourceTree = "<group>"; };
+		4657EDB627C28EF8004A062C /* ExpressionLessSquare_Main.jack */ = {isa = PBXFileReference; lastKnownFileType = text; path = ExpressionLessSquare_Main.jack; sourceTree = "<group>"; };
+		4657EDC227C2970F004A062C /* ExpressionLessSquare_Main.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ExpressionLessSquare_Main.xml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +117,7 @@
 				1A12D6002785BE800082018F /* JackAnalyzer */,
 				461A385827AED2780076967D /* TestBridgingTarget */,
 				461A386A27AED2790076967D /* TestJackAnalyzer */,
+				4657EDB527C28EA9004A062C /* XmlTester */,
 				1A12D5FF2785BE800082018F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -135,8 +159,22 @@
 			children = (
 				461A386B27AED2790076967D /* TestLexer.swift */,
 				4634C1BE27B3A45100D0D317 /* TestParser.swift */,
+				4657EDAA27C282E1004A062C /* TestCompilationEngine.swift */,
 			);
 			path = TestJackAnalyzer;
+			sourceTree = "<group>";
+		};
+		4657EDB527C28EA9004A062C /* XmlTester */ = {
+			isa = PBXGroup;
+			children = (
+				4657EDB627C28EF8004A062C /* ExpressionLessSquare_Main.jack */,
+				4657EDC227C2970F004A062C /* ExpressionLessSquare_Main.xml */,
+				46368F1027C32FA700FC970A /* ArrayTest.jack */,
+				46368F0F27C32FA700FC970A /* ArrayTest.xml */,
+				46368F1327C3703800FC970A /* ExpressionLessSquare_Square.jack */,
+				46368F1427C3703800FC970A /* ExpressionLessSquare_Square.xml */,
+			);
+			path = XmlTester;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -184,6 +222,7 @@
 				461A386327AED2790076967D /* Sources */,
 				461A386427AED2790076967D /* Frameworks */,
 				461A386527AED2790076967D /* Resources */,
+				4657EDBA27C28FDE004A062C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -242,6 +281,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46368F1227C32FA700FC970A /* ArrayTest.jack in Resources */,
+				4657EDBD27C291EE004A062C /* ExpressionLessSquare_Main.jack in Resources */,
+				46368F1627C3703800FC970A /* ExpressionLessSquare_Square.xml in Resources */,
+				46368F1527C3703800FC970A /* ExpressionLessSquare_Square.jack in Resources */,
+				4657EDC327C2970F004A062C /* ExpressionLessSquare_Main.xml in Resources */,
+				46368F1127C32FA700FC970A /* ArrayTest.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +353,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4634C1BF27B3A45100D0D317 /* TestParser.swift in Sources */,
+				4657EDAB27C282E1004A062C /* TestCompilationEngine.swift in Sources */,
 				461A386C27AED2790076967D /* TestLexer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -443,6 +489,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = BV68V66Y4K;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -475,6 +525,10 @@
 				DEVELOPMENT_TEAM = BV68V66Y4K;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 山崎宏哉. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -531,6 +585,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BV68V66Y4K;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

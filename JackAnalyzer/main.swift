@@ -41,6 +41,7 @@ class Main {
         let program = parser.startParse()
         let compilationEngine = CompilationEngine(outputFileDir: outputFileDir, program: program)
         compilationEngine.compileProgram()
+        compilationEngine.outPutToXml()
     }
 
     static func compileMultiFiles(_ url: URL) {
