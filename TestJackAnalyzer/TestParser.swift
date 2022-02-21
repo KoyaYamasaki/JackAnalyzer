@@ -185,6 +185,31 @@ class TestParser: XCTestCase {
         XCTAssertEqual(fn.name.value, "testFunc")
     }
 
+    func testFunction04() throws {
+        let testParameters = ["int x", "boolean y"]
+        let testFn =
+        """
+        class Main {
+            function void testFunc(\(testParameters[0]), \(testParameters[1])) {
+                return x;
+            }
+        }
+        """
+
+        let lexer = Lexer(contentStr: testFn)
+        let parser = Parser(lexer: lexer)
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions.count, 1)
+
+        let fn = program.cls.functions[0]
+
+        XCTAssertEqual(fn.token.tokenType, .FUNCTION)
+        XCTAssertEqual(fn.parameters[0].token.tokenType, .INT)
+        XCTAssertEqual(fn.parameters[0].name.value, "x")
+        XCTAssertEqual(fn.parameters[1].token.tokenType, .BOOLEAN)
+        XCTAssertEqual(fn.parameters[1].name.value, "y")
+    }
+
     func testLetStatement() throws {
         let testCount = 3
         let testIdent = ["letIdentifier", "x", "y"]
@@ -247,7 +272,7 @@ class TestParser: XCTestCase {
 
     func testDoStatement() throws {
         let fnName = "add"
-        let args = ["2", "3"]
+        let args = ["2", "this"]
         let testStmt = "do \(fnName)(\(args[0]), \(args[1]));"
 
         let lexer = Lexer(contentStr: testStmt)
@@ -268,9 +293,10 @@ class TestParser: XCTestCase {
         XCTAssertEqual(doStmt.token.tokenType, .DO)
         XCTAssertEqual(doStmt.callExpression.fnName.token.tokenType, .IDENTIFIER)
         XCTAssertEqual(doStmt.callExpression.fnName.value, fnName)
-        for (index, arg) in doStmt.callExpression.arguments.enumerated() {
-            XCTAssertEqual(arg.printSelf(), args[index])
-        }
+        XCTAssertEqual(doStmt.callExpression.arguments[0].selfTokenType, .INT_CONST)
+        XCTAssertEqual(doStmt.callExpression.arguments[0].printSelf(), "2")
+        XCTAssertEqual(doStmt.callExpression.arguments[1].selfTokenType, .THIS)
+        XCTAssertEqual(doStmt.callExpression.arguments[1].printSelf(), "this")
     }
 
     func testIfStatement01() throws {

@@ -67,7 +67,7 @@ struct Function: Node {
     let token: Token
     let returnType: Token
     let name: Identifier
-    var parameters: [Token]
+    var parameters: [Parmeter]
     var vars: [VarStatement]
     var statements: [Statement]
 
@@ -265,6 +265,19 @@ struct Boolean: Expression {
     }
 }
 
+struct KeywordExpression: Expression {
+    let token: Token
+    let value: String
+
+    func printSelf() -> String {
+        return value
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+}
+
 struct StringLiteral: Expression {
     let token: Token
     let value: String
@@ -284,6 +297,19 @@ struct IntegerLiteral: Expression {
 
     func printSelf() -> String {
         return String(value)
+    }
+
+    var selfTokenType: TokenType {
+        return token.tokenType
+    }
+}
+
+struct Parmeter: Expression {
+    let token: Token
+    let name: Identifier
+
+    func printSelf() -> String {
+        return token.tokenLiteral + " " + name.value
     }
 
     var selfTokenType: TokenType {

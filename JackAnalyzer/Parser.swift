@@ -61,10 +61,13 @@ class Parser {
             if expectPeek(tokenType: .LPARENTHESIS) {
                 self.advanceAndSetTokens()
             }
-
-            if expectPeek(tokenType: .RPARENTHESIS) {
+            var parameterList: [Parmeter] = []
+            while !expectPeek(tokenType: .RPARENTHESIS) {
                 self.advanceAndSetTokens()
+                parameterList.append(parseParameter())
             }
+
+            self.advanceAndSetTokens()
 
             if expectPeek(tokenType: .LBLACE) {
                 self.advanceAndSetTokens()
@@ -77,7 +80,7 @@ class Parser {
                 varStatements.append(parseVarStatement())
             }
 
-            function = Function(token: fnToken!, returnType: returnType!, name: fnName, parameters: [], vars: varStatements, statements: [])
+            function = Function(token: fnToken!, returnType: returnType!, name: fnName, parameters: parameterList, vars: varStatements, statements: [])
         }
 
         // Need to repeat at least once.
@@ -268,6 +271,16 @@ class Parser {
         return callExp
     }
 
+    private func parseParameter() -> Parmeter {
+        let parameter = currentToken
+        self.advanceAndSetTokens()
+        let name = Identifier(token: currentToken!, value: currentToken.tokenLiteral, arrayElement: nil)
+        if expectPeek(tokenType: .COMMA) {
+            self.advanceAndSetTokens()
+        }
+        return Parmeter(token: parameter!, name: name)
+    }
+
     private func parseIfStatement() -> Statement {
         let ifToken = currentToken
 
@@ -359,6 +372,8 @@ class Parser {
         switch currentToken.tokenType {
         case .TRUE, .FALSE:
             expression = parseBoolean()
+        case .THIS, .NULL:
+            expression = parseKeywordExpression()
         case .STRING_CONST:
             expression = parseStringLiteral()
         case .INT_CONST:
@@ -399,6 +414,10 @@ class Parser {
 
     private func parseBoolean() -> Expression {
         return Boolean(token: currentToken, value: Bool(currentToken.tokenLiteral)!)
+    }
+
+    private func parseKeywordExpression() -> Expression {
+        return KeywordExpression(token: currentToken, value: currentToken.tokenLiteral)
     }
 
     private func parseIdentifier() -> Expression {

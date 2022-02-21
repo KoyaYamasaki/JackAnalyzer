@@ -25,12 +25,14 @@ class TestCompilationEngine: XCTestCase {
 
     func test02() throws {
         execTest(resource: "ArrayTest")
-
     }
 
     func test03() throws {
         execTest(resource: "ExpressionLessSquare_Square")
+    }
 
+    func test04() throws {
+        execTest(resource: "ExpressionLessSquare_SquareGame")
     }
 
     func execTest(resource: String) {

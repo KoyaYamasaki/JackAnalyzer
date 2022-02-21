@@ -110,13 +110,22 @@ class CompilationEngine {
         outputAry.shapeAndAppend("<subroutineDec>")
         increaseIndent() // indent == 2
         outputAry.shapeAndAppend(keywordTag(subroutine.token.tokenLiteral))
-        outputAry.shapeAndAppend(keywordTag(subroutine.returnType.tokenLiteral))
+        if TokenType.keywordSets.contains(subroutine.returnType.tokenLiteral) {
+            outputAry.shapeAndAppend(keywordTag(subroutine.returnType.tokenLiteral))
+        } else {
+            outputAry.shapeAndAppend(identifierTag(subroutine.returnType.tokenLiteral))
+        }
         outputAry.shapeAndAppend(identifierTag(subroutine.name.value))
         outputAry.shapeAndAppend(symbolTag("("))
         outputAry.shapeAndAppend("<parameterList>")
-        for p in subroutine.parameters {
-            compileParameterList(p)
+        increaseIndent() // indent == 3
+        for (index, p) in subroutine.parameters.enumerated() {
+            compileParameter(p)
+            if index+1 != subroutine.parameters.count {
+                outputAry.shapeAndAppend(symbolTag(","))
+            }
         }
+        decreaseIndent() // indent == 2
         outputAry.shapeAndAppend("</parameterList>")
         outputAry.shapeAndAppend(symbolTag(")"))
         compileSubroutineBody(varStmts: subroutine.vars, stmts: subroutine.statements)
@@ -144,16 +153,9 @@ class CompilationEngine {
         outputAry.shapeAndAppend("</subroutineBody>")
     }
 
-    func compileParameterList(_ p: Token) {
-        increaseIndent() // indent == 3
-//        outputAry.shapeAndAppend(keywordTag(p.tokenLiteral))
-//        for (index, vName) in p.names.enumerated() {
-//            outputAry.shapeAndAppend(identifierTag(vName.value))
-//            if index+1 != v.names.count {
-//                outputAry.shapeAndAppend(symbolTag(","))
-//            }
-//        }
-        decreaseIndent() // indent == 2
+    func compileParameter(_ p: Parmeter) {
+        outputAry.shapeAndAppend(keywordTag(p.token.tokenLiteral))
+        outputAry.shapeAndAppend(identifierTag(p.name.value))
     }
 
     func compileVarDec(_ v: VarStatement) {
@@ -272,9 +274,11 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.symbolTag(")"))
         outputAry.shapeAndAppend(self.symbolTag("{"))
         outputAry.shapeAndAppend("<statements>")
+        increaseIndent() // indent == 6
         for stmt in stmt.consequence {
             compileStatements(stmt)
         }
+        decreaseIndent() // indent == 5
         outputAry.shapeAndAppend("</statements>")
         outputAry.shapeAndAppend(self.symbolTag("}"))
         if let alter = stmt.alternative {
@@ -296,6 +300,9 @@ class CompilationEngine {
         case .BOOLEAN:
             let boolExp = expression as! Boolean
             compileTerm(keywordTag(boolExp.printSelf()))
+        case .THIS, .NULL:
+            let keywordExp = expression as! KeywordExpression
+            compileTerm(keywordTag(keywordExp.printSelf()))
         case .IDENTIFIER:
             let identExp = expression as! Identifier
             compileIdentifierExpression(identExp)
@@ -379,10 +386,10 @@ class CompilationEngine {
             outputAry.shapeAndAppend("<expression>")
             compileExpression(arg)
             outputAry.shapeAndAppend("</expression>")
-            decreaseIndent() // indent == 5
             if index + 1 != args.count {
                 outputAry.shapeAndAppend(self.symbolTag(","))
             }
+            decreaseIndent() // indent == 5
         }
         outputAry.shapeAndAppend("</expressionList>")
     }

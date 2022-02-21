@@ -63,6 +63,7 @@ class Lexer {
         } else if currentChar.isLetter {
             let str = self.readIdentifier()
             if TokenType.keywordSets.contains(str) {
+                print("token string : ", str)
                 return Token(tokenType: TokenType(rawValue: str)!, tokenLiteral: str)
             } else {
                 return Token(tokenType: .IDENTIFIER, tokenLiteral: str)
