@@ -61,7 +61,7 @@ class Parser {
             if expectPeek(tokenType: .LPARENTHESIS) {
                 self.advanceAndSetTokens()
             }
-            var parameterList: [Parmeter] = []
+            var parameterList: [Parameter] = []
             while !expectPeek(tokenType: .RPARENTHESIS) {
                 self.advanceAndSetTokens()
                 parameterList.append(parseParameter())
@@ -271,14 +271,14 @@ class Parser {
         return callExp
     }
 
-    private func parseParameter() -> Parmeter {
+    private func parseParameter() -> Parameter {
         let parameter = currentToken
         self.advanceAndSetTokens()
         let name = Identifier(token: currentToken!, value: currentToken.tokenLiteral, arrayElement: nil)
         if expectPeek(tokenType: .COMMA) {
             self.advanceAndSetTokens()
         }
-        return Parmeter(token: parameter!, name: name)
+        return Parameter(token: parameter!, name: name)
     }
 
     private func parseIfStatement() -> Statement {
@@ -384,11 +384,13 @@ class Parser {
             } else {
                 expression = parseIdentifier()
             }
+        case .TILDE, .MINUS, .LPARENTHESIS:
+            expression = parsePrefixExpression()
         default:
             return nil
         }
 
-        if expectPeek(tokenType: .PLUS) || expectPeek(tokenType: .MINUS) || expectPeek(tokenType: .ASTERISK) || expectPeek(tokenType: .SLASH) || expectPeek(tokenType: .LANGLE) || expectPeek(tokenType: .RANGLE) {
+        if expectPeek(tokenType: .PLUS) || expectPeek(tokenType: .MINUS) || expectPeek(tokenType: .ASTERISK) || expectPeek(tokenType: .SLASH) || expectPeek(tokenType: .LANGLE) || expectPeek(tokenType: .RANGLE) || expectPeek(tokenType: .PIPE) {
             expression = parseInfixExpression(leftExp: expression)
         }
         return expression
@@ -400,6 +402,21 @@ class Parser {
         let arrayElement = parseExpression()
         advanceAndSetTokens() // ]
         return arrayElement!
+    }
+
+    private func parsePrefixExpression() -> Expression {
+        let token = Token(tokenType: .PREFIX_EXPRESSION, tokenLiteral: TokenType.PREFIX_EXPRESSION.rawValue)
+        if currentToken.tokenType == .LPARENTHESIS {
+            advanceAndSetTokens()
+        }
+        let operat = currentToken
+        self.advanceAndSetTokens()
+        let rightExp = parseExpression()
+        if currentToken.tokenType == .RPARENTHESIS {
+            advanceAndSetTokens()
+        }
+        self.advanceAndSetTokens()
+        return PrefixExpression(token: token, operat: operat!, right: rightExp!)
     }
 
     private func parseInfixExpression(leftExp: Expression) -> Expression {

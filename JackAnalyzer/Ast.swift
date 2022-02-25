@@ -67,7 +67,7 @@ struct Function: Node {
     let token: Token
     let returnType: Token
     let name: Identifier
-    var parameters: [Parmeter]
+    var parameters: [Parameter]
     var vars: [VarStatement]
     var statements: [Statement]
 
@@ -304,7 +304,7 @@ struct IntegerLiteral: Expression {
     }
 }
 
-struct Parmeter: Expression {
+struct Parameter: Expression {
     let token: Token
     let name: Identifier
 

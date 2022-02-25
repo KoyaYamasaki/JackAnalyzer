@@ -153,7 +153,7 @@ class CompilationEngine {
         outputAry.shapeAndAppend("</subroutineBody>")
     }
 
-    func compileParameter(_ p: Parmeter) {
+    func compileParameter(_ p: Parameter) {
         outputAry.shapeAndAppend(keywordTag(p.token.tokenLiteral))
         outputAry.shapeAndAppend(identifierTag(p.name.value))
     }
@@ -285,9 +285,11 @@ class CompilationEngine {
             outputAry.shapeAndAppend(self.keywordTag("else"))
             outputAry.shapeAndAppend(self.symbolTag("{"))
             outputAry.shapeAndAppend("<statements>")
+            increaseIndent() // indent == 6
             for stmt in alter {
                 compileStatements(stmt)
             }
+            decreaseIndent() // indent == 5
             outputAry.shapeAndAppend("</statements>")
             outputAry.shapeAndAppend(self.symbolTag("}"))
         }
@@ -297,7 +299,7 @@ class CompilationEngine {
 
     func compileExpression(_ expression: Expression) {
         switch expression.selfTokenType {
-        case .BOOLEAN:
+        case .TRUE, .FALSE:
             let boolExp = expression as! Boolean
             compileTerm(keywordTag(boolExp.printSelf()))
         case .THIS, .NULL:
@@ -315,6 +317,9 @@ class CompilationEngine {
         case .INT_CONST:
             let intExp = expression as! IntegerLiteral
             compileTerm(integerLiteralTag(intExp.value))
+        case .PREFIX_EXPRESSION:
+            let prefixExp = expression as! PrefixExpression
+            compilePrefixExpression(prefixExp)
         case .INFIX_EXPRESSION:
             let infixExp = expression as! InfixExpression
             compileInfixExpression(infixExp)
@@ -348,7 +353,11 @@ class CompilationEngine {
         if let arrayElement = identifier.arrayElement {
             outputAry.shapeAndAppend(self.symbolTag("["))
             outputAry.shapeAndAppend("<expression>")
-            compileTerm(self.identifierTag(arrayElement.printSelf()))
+            if arrayElement.selfTokenType == .IDENTIFIER {
+                compileTerm(self.identifierTag(arrayElement.printSelf()))
+            } else {
+                compileTerm(self.integerLiteralTag(Int(arrayElement.printSelf())!))
+            }
             outputAry.shapeAndAppend("</expression>")
             outputAry.shapeAndAppend(self.symbolTag("]"))
         }
@@ -369,6 +378,11 @@ class CompilationEngine {
         decreaseIndent() // indent == 6
         outputAry.shapeAndAppend("</term>")
         decreaseIndent() // indent == 5
+    }
+
+    func compilePrefixExpression(_ prefixExp: PrefixExpression) {
+        outputAry.shapeAndAppend(self.symbolTag(prefixExp.operat.tokenLiteral))
+        compileExpression(prefixExp.right)
     }
 
     func compileInfixExpression(_ infixExp: InfixExpression) {
