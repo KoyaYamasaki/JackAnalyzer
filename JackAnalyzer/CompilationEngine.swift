@@ -219,7 +219,9 @@ class CompilationEngine {
         compileNameIdentifier(stmt.name)
         outputAry.shapeAndAppend(self.symbolTag("="))
         outputAry.shapeAndAppend("<expression>")
+        increaseIndent() // indent == 6
         compileExpression(stmt.expression)
+        decreaseIndent() // indent == 5
         outputAry.shapeAndAppend("</expression>")
         outputAry.shapeAndAppend(self.symbolTag(";"))
         decreaseIndent() // indent == 4
@@ -232,7 +234,9 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         outputAry.shapeAndAppend(self.symbolTag("("))
         outputAry.shapeAndAppend("<expression>")
+        increaseIndent() // indent == 6
         compileExpression(stmt.condition)
+        decreaseIndent() // indent == 5
         outputAry.shapeAndAppend("</expression>")
         outputAry.shapeAndAppend(self.symbolTag(")"))
         outputAry.shapeAndAppend(self.symbolTag("{"))
@@ -255,7 +259,9 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         if let exp = stmt.expression {
             outputAry.shapeAndAppend("<expression>")
+            increaseIndent() // indent == 6
             compileExpression(exp)
+            decreaseIndent() // indent == 5
             outputAry.shapeAndAppend("</expression>")
         }
         outputAry.shapeAndAppend(self.symbolTag(";"))
@@ -269,7 +275,9 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.keywordTag(stmt.token.tokenLiteral))
         outputAry.shapeAndAppend(self.symbolTag("("))
         outputAry.shapeAndAppend("<expression>")
+        increaseIndent() // indent == 6
         compileExpression(stmt.condition)
+        decreaseIndent() // indent == 5
         outputAry.shapeAndAppend("</expression>")
         outputAry.shapeAndAppend(self.symbolTag(")"))
         outputAry.shapeAndAppend(self.symbolTag("{"))
@@ -319,33 +327,57 @@ class CompilationEngine {
             compileTerm(integerLiteralTag(intExp.value))
         case .PREFIX_EXPRESSION:
             let prefixExp = expression as! PrefixExpression
-            compilePrefixExpression(prefixExp)
+            var hasRightParen = false
+            if prefixExp.isInfix(exp: prefixExp.right) {
+                hasRightParen = true
+            }
+
+            compilePrefixExpression(prefixExp, hasRightParen: hasRightParen)
         case .INFIX_EXPRESSION:
             let infixExp = expression as! InfixExpression
-            compileInfixExpression(infixExp)
+            var hasLeftParen = false, hasRightParen = false
+
+            if infixExp.isPrefixOrInfix(exp: infixExp.left) {
+                hasLeftParen = true
+            }
+            if infixExp.isPrefixOrInfix(exp: infixExp.right) {
+                hasRightParen = true
+            }
+            
+            compileInfixExpression(infixExp, hasLeftParen: hasLeftParen, hasRightParen: hasRightParen)
         default:
             print("default")
         }
     }
 
+    func compileParenthesis(_ exp: Expression) {
+        outputAry.shapeAndAppend("<term>")
+        increaseIndent()
+        outputAry.shapeAndAppend(self.symbolTag("("))
+        outputAry.shapeAndAppend("<expression>")
+        increaseIndent()
+        compileExpression(exp)
+        decreaseIndent()
+        outputAry.shapeAndAppend("</expression>")
+        outputAry.shapeAndAppend(self.symbolTag(")"))
+        decreaseIndent()
+        outputAry.shapeAndAppend("</term>")
+    }
+
     func compileTerm(_ element: String) {
-        increaseIndent() // indent == 6
         outputAry.shapeAndAppend("<term>")
         increaseIndent() // indent == 7
         outputAry.shapeAndAppend(element)
         decreaseIndent() // indent == 6
         outputAry.shapeAndAppend("</term>")
-        decreaseIndent() // indent == 5
     }
 
     func compileIdentifierExpression(_ ident: Identifier) {
-        increaseIndent() // indent == 6
         outputAry.shapeAndAppend("<term>")
         increaseIndent() // indent == 7
         compileNameIdentifier(ident)
         decreaseIndent() // indent == 6
         outputAry.shapeAndAppend("</term>")
-        decreaseIndent() // indent == 5
     }
 
     func compileNameIdentifier(_ identifier: Identifier) {
@@ -353,18 +385,19 @@ class CompilationEngine {
         if let arrayElement = identifier.arrayElement {
             outputAry.shapeAndAppend(self.symbolTag("["))
             outputAry.shapeAndAppend("<expression>")
+            increaseIndent()
             if arrayElement.selfTokenType == .IDENTIFIER {
                 compileTerm(self.identifierTag(arrayElement.printSelf()))
             } else {
                 compileTerm(self.integerLiteralTag(Int(arrayElement.printSelf())!))
             }
+            decreaseIndent()
             outputAry.shapeAndAppend("</expression>")
             outputAry.shapeAndAppend(self.symbolTag("]"))
         }
     }
 
     func compileCallExpression(_ callExp: CallExpression) {
-        increaseIndent() // indent == 6
         outputAry.shapeAndAppend("<term>")
         increaseIndent() // indent == 7
         if let clsName = callExp.clsName {
@@ -377,20 +410,21 @@ class CompilationEngine {
         outputAry.shapeAndAppend(self.symbolTag(")"))
         decreaseIndent() // indent == 6
         outputAry.shapeAndAppend("</term>")
-        decreaseIndent() // indent == 5
     }
 
-    func compilePrefixExpression(_ prefixExp: PrefixExpression) {
-        outputAry.shapeAndAppend(self.symbolTag(prefixExp.operat.tokenLiteral))
-        compileExpression(prefixExp.right)
-    }
-
-    func compileInfixExpression(_ infixExp: InfixExpression) {
-        compileExpression(infixExp.left)
+    func compilePrefixExpression(_ prefixExp: PrefixExpression, hasRightParen: Bool = false) {
+        outputAry.shapeAndAppend("<term>")
         increaseIndent() // indent == 7
-        outputAry.shapeAndAppend(self.symbolTag(infixExp.operat.getEscapeCharacters))
+        outputAry.shapeAndAppend(self.symbolTag(prefixExp.operat.tokenLiteral))
+        hasRightParen ? compileParenthesis(prefixExp.right) : compileExpression(prefixExp.right)
         decreaseIndent() // indent == 6
-        compileExpression(infixExp.right)
+        outputAry.shapeAndAppend("</term>")
+    }
+
+    func compileInfixExpression(_ infixExp: InfixExpression, hasLeftParen: Bool = false, hasRightParen: Bool = false) {
+        hasLeftParen ? compileParenthesis(infixExp.left) : compileExpression(infixExp.left)
+        outputAry.shapeAndAppend(self.symbolTag(infixExp.operat.getEscapeCharacters))
+        hasRightParen ? compileParenthesis(infixExp.right) : compileExpression(infixExp.right)
     }
 
     func compileExpressionList(_ args: [Expression]) {
@@ -398,7 +432,9 @@ class CompilationEngine {
         for (index, arg) in args.enumerated() {
             increaseIndent() // indent == 6
             outputAry.shapeAndAppend("<expression>")
+            increaseIndent() // indent == 7
             compileExpression(arg)
+            decreaseIndent() // indent == 6
             outputAry.shapeAndAppend("</expression>")
             if index + 1 != args.count {
                 outputAry.shapeAndAppend(self.symbolTag(","))

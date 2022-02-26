@@ -505,4 +505,143 @@ class TestParser: XCTestCase {
             XCTAssertEqual(conseq.printSelf(), testConseq[index])
         }
     }
+
+    func testInfixExpression01() throws {
+        let testExp = "let infixTest = 1 + i;"
+
+        let lexer = Lexer(contentStr: testExp)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        guard let letStmt = stmt as? LetStatement else {
+            XCTAssertThrowsError("Statement is not let")
+            return
+        }
+
+        guard let infixExp = letStmt.expression as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        XCTAssertEqual(infixExp.left.selfTokenType, .INT_CONST)
+        XCTAssertEqual(infixExp.operat.tokenType, .PLUS)
+        XCTAssertEqual(infixExp.right.selfTokenType, .IDENTIFIER)
+    }
+
+    func testInfixExpression02() throws {
+        let testExp = "let infixTest = ((y + size) < 254) & (510 > (x + size)));"
+
+        let lexer = Lexer(contentStr: testExp)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        guard let letStmt = stmt as? LetStatement else {
+            XCTAssertThrowsError("Statement is not let")
+            return
+        }
+
+        guard let infixExp = letStmt.expression as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        guard let leftExp = infixExp.left as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        guard let leftFirstExp = leftExp.left as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        guard let infixExp = letStmt.expression as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        guard let rightExp = infixExp.right as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        guard let rightSecondExp = rightExp.right as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        XCTAssertEqual(leftFirstExp.left.selfTokenType, .IDENTIFIER)
+        XCTAssertEqual(leftFirstExp.left.printSelf(), "y")
+        XCTAssertEqual(leftFirstExp.operat.tokenType, .PLUS)
+        XCTAssertEqual(leftFirstExp.right.selfTokenType, .IDENTIFIER)
+        XCTAssertEqual(leftFirstExp.right.printSelf(), "size")
+
+        XCTAssertEqual(leftExp.operat.tokenType, .LANGLE)
+        XCTAssertEqual(leftExp.right.selfTokenType, .INT_CONST)
+        XCTAssertEqual(leftExp.right.printSelf(), "254")
+
+        XCTAssertEqual(infixExp.operat.tokenType, .AMPERSAND)
+
+        XCTAssertEqual(rightExp.left.selfTokenType, .INT_CONST)
+        XCTAssertEqual(rightExp.left.printSelf(), "510")
+
+        XCTAssertEqual(rightExp.operat.tokenType, .RANGLE)
+
+        XCTAssertEqual(rightSecondExp.left.selfTokenType, .IDENTIFIER)
+        XCTAssertEqual(rightSecondExp.left.printSelf(), "x")
+        XCTAssertEqual(rightSecondExp.operat.tokenType, .PLUS)
+        XCTAssertEqual(rightSecondExp.right.selfTokenType, .IDENTIFIER)
+        XCTAssertEqual(rightSecondExp.right.printSelf(), "size")
+        print(infixExp.printSelf())
+    }
+
+    func testInfixExpression03() throws {
+        let testExp = "let infixTest = (1 + 1) + 1;"
+        let lexer = Lexer(contentStr: testExp)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        guard let letStmt = stmt as? LetStatement else {
+            XCTAssertThrowsError("Statement is not let")
+            return
+        }
+
+        guard let infixExp = letStmt.expression as? InfixExpression else {
+            XCTAssertThrowsError("expression is not infixExpression")
+            return
+        }
+
+        XCTAssertEqual(infixExp.printSelf(), "(1 + 1) + 1")
+    }
+
+    func testPrefixExpression01() throws {
+        let testExp = "if(~(10 + size)) { return true; }"
+        let lexer = Lexer(contentStr: testExp)
+        let parser = Parser(lexer: lexer)
+
+        let program = parser.startParse()
+        XCTAssertEqual(program.cls.functions[0].statements.count, 1)
+
+        let stmt = program.cls.functions[0].statements[0]
+        guard let ifStmt = stmt as? IfStatement else {
+            XCTAssertThrowsError("Statement is not if")
+            return
+        }
+
+        guard let prefixExp = ifStmt.condition as? PrefixExpression else {
+            XCTAssertThrowsError("expression is not prefixExpression")
+            return
+        }
+
+        XCTAssertEqual(prefixExp.printSelf(), "~(10 + size)")
+    }
 }

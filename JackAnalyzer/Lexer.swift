@@ -31,7 +31,7 @@ class Lexer {
 
         // Remove comment lines.
         commandByLine = commandByLine.filter {
-            !$0.hasPrefix("//") && !$0.hasPrefix("/**")
+            !$0.hasPrefix("//") && !$0.hasPrefix("/**") && !$0.hasPrefix("*")
         }
 
         // Remove Same line comment

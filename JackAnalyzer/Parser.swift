@@ -16,6 +16,36 @@ class Parser {
     var currentToken: Token!
     var nextToken: Token!
 
+    enum PrecedenceOrder: Int {
+        case LOWEST = 0
+        case EQUALS
+        case AND
+        case LESSGREATER
+        case SUM
+        case PRODUCT
+        case PREFIX
+        case CALL
+        case INDEX
+    }
+
+    var precedence: [TokenType: PrecedenceOrder] = [
+        TokenType.EQUAL: PrecedenceOrder.EQUALS,
+        TokenType.AMPERSAND: PrecedenceOrder.AND,
+        TokenType.PIPE: PrecedenceOrder.AND,
+        TokenType.LANGLE: PrecedenceOrder.LESSGREATER,
+        TokenType.RANGLE: PrecedenceOrder.LESSGREATER,
+        TokenType.PLUS: PrecedenceOrder.SUM,
+        TokenType.MINUS: PrecedenceOrder.SUM,
+        TokenType.SLASH: PrecedenceOrder.PRODUCT,
+        TokenType.ASTERISK: PrecedenceOrder.PRODUCT,
+        TokenType.LPARENTHESIS: PrecedenceOrder.CALL,
+        TokenType.LBLACKET: PrecedenceOrder.INDEX
+    ]
+
+    var isInfixLiteral: Bool {
+        return expectPeek(tokenType: .PLUS) || expectPeek(tokenType: .MINUS) || expectPeek(tokenType: .ASTERISK) || expectPeek(tokenType: .SLASH) || expectPeek(tokenType: .LANGLE) || expectPeek(tokenType: .RANGLE) || expectPeek(tokenType: .PIPE) || expectPeek(tokenType: .AMPERSAND) || expectPeek(tokenType: .EQUAL)
+    }
+
     init(lexer: Lexer) {
         self.lexer = lexer
 
@@ -179,7 +209,7 @@ class Parser {
             unexpectedToken(expectedToken: .IDENTIFIER)
         }
 
-        let letIdent = parseExpression() as? Identifier
+        let letIdent = parseIdentifier() as? Identifier
 
         if expectPeek(tokenType: .EQUAL) {
             advanceAndSetTokens()
@@ -367,7 +397,7 @@ class Parser {
         return whileStmt
     }
 
-    private func parseExpression() -> Expression? {
+    private func parseExpression(precedence: PrecedenceOrder = .LOWEST) -> Expression? {
         var expression: Expression
         switch currentToken.tokenType {
         case .TRUE, .FALSE:
@@ -384,14 +414,24 @@ class Parser {
             } else {
                 expression = parseIdentifier()
             }
-        case .TILDE, .MINUS, .LPARENTHESIS:
+        case .TILDE, .MINUS:
             expression = parsePrefixExpression()
+        case .LPARENTHESIS:
+            advanceAndSetTokens()
+            expression = parseExpression()!
         default:
             return nil
         }
 
-        if expectPeek(tokenType: .PLUS) || expectPeek(tokenType: .MINUS) || expectPeek(tokenType: .ASTERISK) || expectPeek(tokenType: .SLASH) || expectPeek(tokenType: .LANGLE) || expectPeek(tokenType: .RANGLE) || expectPeek(tokenType: .PIPE) {
-            expression = parseInfixExpression(leftExp: expression)
+        while precedence.rawValue < peekPrecedence().rawValue {
+            if !isInfixLiteral {
+                return expression
+            } else {
+                expression = parseInfixExpression(leftExp: expression)
+                while expectPeek(tokenType: .RPARENTHESIS) {
+                    advanceAndSetTokens()
+                }
+            }
         }
         return expression
     }
@@ -406,9 +446,6 @@ class Parser {
 
     private func parsePrefixExpression() -> Expression {
         let token = Token(tokenType: .PREFIX_EXPRESSION, tokenLiteral: TokenType.PREFIX_EXPRESSION.rawValue)
-        if currentToken.tokenType == .LPARENTHESIS {
-            advanceAndSetTokens()
-        }
         let operat = currentToken
         self.advanceAndSetTokens()
         let rightExp = parseExpression()
@@ -424,8 +461,9 @@ class Parser {
         let left = leftExp
         advanceAndSetTokens()
         let operat = currentToken
+        let precedence = currentPrecedence()
         advanceAndSetTokens()
-        let rightExp = parseExpression()
+        let rightExp = parseExpression(precedence: precedence)
         return InfixExpression(token: token, left: left, operat: operat!, right: rightExp!)
     }
 
@@ -452,6 +490,22 @@ class Parser {
 
     private func parseIntegerLiteral() -> Expression {
         return IntegerLiteral(token: currentToken, value: Int(currentToken.tokenLiteral)!)
+    }
+
+    private func currentPrecedence() -> PrecedenceOrder {
+        if let pOrder = precedence[currentToken.tokenType] {
+            return pOrder
+        } else {
+            return .LOWEST
+        }
+    }
+
+    private func peekPrecedence() -> PrecedenceOrder {
+        if let pOrder = precedence[nextToken.tokenType] {
+            return pOrder
+        } else {
+            return .LOWEST
+        }
     }
 
     private func unexpectedToken(expectedToken: TokenType) {

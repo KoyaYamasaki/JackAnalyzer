@@ -327,7 +327,16 @@ struct PrefixExpression: Expression {
     }
     
     func printSelf() -> String {
-        return operat.tokenLiteral + right.printSelf()
+        var rightStr = right.printSelf()
+        if self.isInfix(exp: right) {
+            rightStr = "(" + right.printSelf() + ")"
+        }
+
+        return operat.tokenLiteral + rightStr
+    }
+
+    func isInfix(exp: Expression) -> Bool {
+        return (exp as? InfixExpression) != nil
     }
 }
 
@@ -342,6 +351,20 @@ struct InfixExpression: Expression {
     }
     
     func printSelf() -> String {
-        return left.printSelf() + operat.tokenLiteral + right.printSelf()
+        var leftStr = left.printSelf()
+        if self.isPrefixOrInfix(exp: left) {
+            leftStr = "(" + left.printSelf() + ")"
+        }
+
+        var rightStr = right.printSelf()
+        if self.isPrefixOrInfix(exp: right) {
+            rightStr = "(" + right.printSelf() + ")"
+        }
+
+        return leftStr + " " + operat.tokenLiteral + " " + rightStr
+    }
+
+    func isPrefixOrInfix(exp: Expression) -> Bool {
+        return ((exp as? PrefixExpression) != nil) || ((exp as? InfixExpression) != nil)
     }
 }

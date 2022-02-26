@@ -35,6 +35,18 @@ class TestCompilationEngine: XCTestCase {
         execTest(resource: "ExpressionLessSquare_SquareGame")
     }
 
+    func test05() throws {
+        execTest(resource: "Square_Main")
+    }
+
+    func test06() throws {
+        execTest(resource: "Square_Square")
+    }
+
+    func test07() throws {
+        execTest(resource: "Square_SquareGame")
+    }
+
     func execTest(resource: String) {
         guard let testProgram = Bundle.main.url(forResource: resource, withExtension: "jack") else {
             XCTAssert(false, "Failed to import test program file.")
