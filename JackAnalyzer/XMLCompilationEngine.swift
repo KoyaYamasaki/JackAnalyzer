@@ -10,12 +10,10 @@ import Foundation
 
 class XMLCompilationEngine {
 
-    var fileHandle: FileHandle
-    var compileList: [String] = []
-    var insertOffset = 0
     static var indentIndex = 0
+
+    var fileHandle: FileHandle
     let program: Program
-    var outputStr = ""
     var outputAry: [String] = []
 
     // Use for only test purposes.
