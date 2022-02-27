@@ -16,7 +16,7 @@ extension Array where Element == String {
 
 extension String {
     var withIndent: String {
-        self.indent(CompilationEngine.indentIndex)
+        self.indent(XMLCompilationEngine.indentIndex)
     }
 
     func indent(_ index: Int) -> String {

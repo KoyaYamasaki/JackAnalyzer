@@ -1,5 +1,5 @@
 //
-//  TestCompilationEngine.swift
+//  TestXMLCompilationEngine.swift
 //  TestJackAnalyzer
 //
 //  Created by 山崎宏哉 on 2022/02/20.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import TestBridgingTarget
 
-class TestCompilationEngine: XCTestCase {
+class TestXMLCompilationEngine: XCTestCase {
 
     override func setUpWithError() throws {
 
@@ -67,11 +67,11 @@ class TestCompilationEngine: XCTestCase {
         let lexer = Lexer(fileURL: testProgram)
         let parser = Parser(lexer: lexer)
         let program = parser.startParse()
-        let compEngine = CompilationEngine(program: program)
-        compEngine.compileProgram()
+        let xmlCompEngine = XMLCompilationEngine(program: program)
+        xmlCompEngine.compileProgram()
 
-        for i in 0..<compEngine.outputAry.count {
-            XCTAssertEqual(compEngine.outputAry[i], commandByLine[i])
+        for i in 0..<xmlCompEngine.outputAry.count {
+            XCTAssertEqual(xmlCompEngine.outputAry[i], commandByLine[i])
         }
     }
 }

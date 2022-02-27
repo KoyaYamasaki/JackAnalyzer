@@ -1,5 +1,5 @@
 //
-//  CompilationEngine.swift
+//  XMLCompilationEngine.swift
 //  JackAnalyzer
 //
 //  Created by 山崎宏哉 on 2022/01/10.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CompilationEngine {
+class XMLCompilationEngine {
 
     var fileHandle: FileHandle
     var compileList: [String] = []

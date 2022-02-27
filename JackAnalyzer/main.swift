@@ -39,7 +39,7 @@ class Main {
         let lexer = Lexer(fileURL: url)
         let parser = Parser(lexer: lexer)
         let program = parser.startParse()
-        let compilationEngine = CompilationEngine(outputFileDir: outputFileDir, program: program)
+        let compilationEngine = XMLCompilationEngine(outputFileDir: outputFileDir, program: program)
         compilationEngine.compileProgram()
         compilationEngine.outPutToXml()
     }
